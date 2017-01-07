@@ -69,7 +69,9 @@ class GUI:
         self.deck.mode = 'stopped'
 
     def update_statusbar(self):
-        self.statusbar.set('{} {}'.format(self.deck.pos, self.deck.mode))
+        self.statusbar.set('{} / {} {}'.format(self.deck.pos,
+                                               len(self.deck.blocks),
+                                               self.deck.mode))
         self.root.after(50, self.update_statusbar)
 
 

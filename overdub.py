@@ -21,6 +21,8 @@ class GUI:
         self.player = None
         self.recorder = None
 
+        self.undo_blocks = None
+
         self.root = root = Tk()
         root.title('Overdub')
 
@@ -37,6 +39,7 @@ class GUI:
             ('Record', self.record),
             ('Play', self.play),
             ('Stop', self.stop),
+            ('Undo', self.undo),
         ]:
             button = Button(root, text=text, command=command)
             button['font'] = get_font(size=30)
@@ -61,6 +64,7 @@ class GUI:
         self.deck.mode = 'playing'
 
     def record(self):
+        self.undo_blocks = self.deck.blocks.copy()
         self.deck.pos = 0
         self.deck.mode = 'recording'
 
@@ -68,10 +72,23 @@ class GUI:
         self.deck.pos = 0
         self.deck.mode = 'stopped'
 
+    def undo(self):
+        if self.deck.mode == 'recording':
+            self.deck.mode = 'playing'
+
+        if self.undo_blocks is None:
+            pass
+        else:
+            self.deck.blocks[:] = self.undo_blocks
+            self.undo_blocks = None
+
     def update_statusbar(self):
-        self.statusbar.set('{} / {} {}'.format(self.deck.pos,
-                                               len(self.deck.blocks),
-                                               self.deck.mode))
+        text = '{} / {} {}'.format(self.deck.pos,
+                                   len(self.deck.blocks),
+                                   self.deck.mode)
+        if self.undo_blocks is not None:
+            text += '(undo possible)'
+        self.statusbar.set(text)
         self.root.after(50, self.update_statusbar)
 
 

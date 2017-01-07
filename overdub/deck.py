@@ -1,6 +1,4 @@
-import time
-from overdub import audio
-
+from . import audio
 
 def play_block(blocks, pos):
     if 0 <= pos < len(blocks):
@@ -44,8 +42,7 @@ class Deck:
         self.audio_in.close()
         self.audio_out.close()
 
-    # Todo: better name:
-    def handle_block(self):
+    def update(self):
         inblock = self.audio_in.read_block()
         outblock = audio.SILENCE
 
@@ -58,26 +55,7 @@ class Deck:
         if self.mode == 'recording':
             record_block(self.blocks, self.pos - self.blocklag, inblock)
 
-        if self.mode != 'stoped':
+        if self.mode != 'stopped':
             self.pos += 1
 
         self.audio_out.write_block(outblock)
-
-
-def test_blocklag():
-    def do_blocks(deck, n):
-        for _ in range(n):
-            deck.handle_block()
-
-
-    deck = Deck()
-
-
-    while True:
-        print('Rewind!')
-        deck.pos = 0
-        deck.mode = 'recording'
-        do_blocks(deck, 43)
-
-
-test_blocklag()

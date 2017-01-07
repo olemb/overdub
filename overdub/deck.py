@@ -1,4 +1,5 @@
 from . import audio
+from . import pulse
 
 def play_block(blocks, pos):
     if 0 <= pos < len(blocks):
@@ -21,7 +22,7 @@ def record_block(blocks, pos, block):
 
 
 class Deck:
-    def __init__(self, blocks=None):
+    def __init__(self, blocks=None, backend='pulse'):
         self.pos = 0
         self.mode = 'stopped'
 
@@ -30,12 +31,23 @@ class Deck:
         else:
             self.blocks = blocks
 
-        # We're opening the output first because we need to feed it some
-        # blocks right away.
-        self.audio_out = audio.AudioDevice('w')
-        self.audio_in = audio.AudioDevice('r')
+        if backend == 'pulse':
+            self.audio_out = pulse.AudioDevice('w')
+            self.audio_in = pulse.AudioDevice('r')
 
-        self.blocklag = 3
+            # self.blocklag = 18  # PulseAudio (laptop)
+            self.blocklag = 7  # PulseAudio (SH-201)
+
+        elif backend == 'portaudio':
+            # We're opening the output first because we need to feed it some
+            # blocks right away.
+            self.audio_out = pulse.AudioDevice('w')
+            self.audio_in = pulse.AudioDevice('r')
+
+            self.blocklag = 3  # PortAudio
+
+        else:
+            raise ValueError('unknown audio backend {!r}'.format(backend))
 
     # Todo: better name:
     def close(self):

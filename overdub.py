@@ -17,7 +17,6 @@ def get_font(size):
 class GUI:
     def __init__(self, filename, blocks):
         self.filename = filename
-        self.deck = Deck(blocks)
 
         self.player = None
         self.recorder = None
@@ -43,6 +42,7 @@ class GUI:
             button['font'] = get_font(size=30)
             button.pack(side=LEFT)
 
+        self.deck = Deck(blocks)
         self.update_statusbar()
 
     def update(self):

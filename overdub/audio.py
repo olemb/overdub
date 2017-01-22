@@ -1,10 +1,3 @@
-"""
-Todo:
-
-* fade in first playback frame and fade out last frame (to make
-  skipping sound smoother)
-"""
-
 import sys
 if sys.version_info.major < 3:
     sys.exit('Requires Python 3')
@@ -17,16 +10,15 @@ from pyaudio import PyAudio
 
 pa = None
 
-BYTES_PER_BLOCK = 4096
-
 FRAME_RATE = 44100
 SAMPLE_WIDTH = 2
 NUM_CHANNELS = 2
 FRAME_SIZE = SAMPLE_WIDTH * NUM_CHANNELS
-SILENCE = b'\x00' * BYTES_PER_BLOCK
 
-# Todo: not sure if these are correct.
-FRAMES_PER_BLOCK = int(BYTES_PER_BLOCK / FRAME_SIZE)
+FRAMES_PER_BLOCK = 1048
+BYTES_PER_BLOCK = FRAMES_PER_BLOCK * FRAME_SIZE
+
+SILENCE = b'\x00' * BYTES_PER_BLOCK
 
 BYTES_PER_SECOND = FRAME_RATE * FRAME_SIZE
 SECONDS_PER_BYTE = 1 / BYTES_PER_SECOND
@@ -112,42 +104,38 @@ def save(filename, blocks):
 
 
 class AudioDevice:
-    def __init__(self, mode):
+    def __init__(self):
         _pa_init()
-        self.mode = mode
         self.closed = False
+        self.stream = pa.open(input=True, output=True,
+                              **PA_AUDIO_FORMAT)
 
-        if mode == 'r':
-            self.dev = pa.open(input=True, **PA_AUDIO_FORMAT)
-        elif mode == 'w':
-            self.dev = pa.open(output=True, **PA_AUDIO_FORMAT)
-            for _ in range(4):
-                self.write_block(SILENCE)
-        else:
-            raise ValueError('unknown mode {!r}'.format(mode))
+        self.latency = (self.stream.get_input_latency() \
+                        + self.stream.get_output_latency())
+        self.blocklag = int(round(self.latency * BLOCKS_PER_SECOND))
+
+        # Fill output buffer. (Output latency + one block.)
+        out_blocks = int(round(self.stream.get_output_latency() \
+                               * BLOCKS_PER_SECOND))
+        for _ in range(out_blocks + 1):
+            self.write_block(SILENCE)
 
     def read_block(self):
         if self.closed:
             raise ValueError('audio device is closed')
 
-        if self.mode != 'r':
-            raise ValueError('audio device is write only')
-
-        return self.dev.read(FRAMES_PER_BLOCK)
+        return self.stream.read(FRAMES_PER_BLOCK)
 
     def write_block(self, block):
         if self.closed:
             raise ValueError('audio device is closed')
 
-        if self.mode != 'w':
-            raise ValueError('audio device is read only')
-
         if not self.closed:
-            self.dev.write(block)
+            self.stream.write(block)
 
     def close(self):
         if not self.closed:
-            self.dev.close()
+            self.stream.close()
 
     def __enter__(self):
         return self

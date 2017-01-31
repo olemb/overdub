@@ -142,7 +142,7 @@ class GUI:
             'stopped': ' ',
         }[self.deck.mode]
 
-        if self.undo_blocks:
+        if self.undo_blocks is not None:
             undo_text = '*'
         else:
             undo_text = ' '

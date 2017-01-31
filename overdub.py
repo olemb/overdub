@@ -125,11 +125,30 @@ class GUI:
             self.undo_blocks = None
 
     def update_statusbar(self):
-        text = '{} / {} {}'.format(self.deck.pos,
-                                   len(self.deck.blocks),
-                                   self.deck.mode)
-        if self.undo_blocks is not None:
-            text += '(undo possible)'
+        #text = '{} / {} {}'.format(self.deck.pos,
+        #                           len(self.deck.blocks),
+        #                           self.deck.mode)
+        #if self.undo_blocks is not None:
+        #    text += '(undo possible)'
+
+        if (self.deck.pos * audio.SECONDS_PER_BLOCK) <= 1:
+            near_start = '.'
+        else:
+            near_start = ' '
+
+        mode_text = {
+            'recording': 'O',
+            'playing': '>',
+            'stopped': ' ',
+        }[self.deck.mode]
+
+        if self.undo_blocks:
+            undo_text = '*'
+        else:
+            undo_text = ' '
+
+        text = '{} {}  {}'.format(near_start, mode_text, undo_text)
+
         self.statusbar.set(text)
         self.root.after(10, self.update_statusbar)
 

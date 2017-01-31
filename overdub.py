@@ -137,13 +137,13 @@ class GUI:
             near_start = ' '
 
         mode_text = {
-            'recording': 'O',
+            'recording': '*',
             'playing': '>',
             'stopped': ' ',
         }[self.deck.mode]
 
         if self.undo_blocks is not None:
-            undo_text = '*'
+            undo_text = '~'
         else:
             undo_text = ' '
 

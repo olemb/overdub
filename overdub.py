@@ -35,6 +35,8 @@ class GUI:
         label['font'] = get_font(size=15)
         label.pack(side=TOP,padx=10,pady=10)
 
+        self.root.attributes("-fullscreen", True)
+
         if False:
             for (text, command) in [
                     ('Record', self.record),

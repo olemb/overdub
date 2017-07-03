@@ -11,6 +11,8 @@ import tkinter.font
 from tkinter import *
 from overdub import audio
 from overdub.deck import Deck
+from overdub.joystick import Joystick
+
 
 def get_font(size):
     return tkinter.font.Font(family="Helvetica", size=size)
@@ -20,6 +22,8 @@ class GUI:
     def __init__(self, deck, filename):
         self.deck = deck
         self.filename = filename
+
+        self.joystick = Joystick(optional=True)
 
         self.done = False
 
@@ -67,6 +71,8 @@ class GUI:
         def skip_more(_):
             self.skipdist += 1
 
+        self.joystick_skipdist = 0
+
         # We can't use KeyPress/KeyRelease because of key repeat.
         self.root.bind('<ButtonPress-1>', skip_less)
         self.root.bind('<ButtonRelease-1>', skip_more)
@@ -80,11 +86,33 @@ class GUI:
         self.root.bind('<KeyPress-Right>', skip_more)
         self.root.bind('<KeyRelease-Right>', skip_less)
 
+    def handle_joystick(self):
+        for event in self.joystick.events:
+            if (event['type'], event['number']) == ('axis', 2):
+                value = event['value']
+
+                # Sometimes the joystick doesn't go all the way back to 0.0.
+                if abs(value) < 0.05:
+                    value = 0
+                
+                self.joystick_skipdist = value
+
+            elif (event['type'], event['value']) == ('button', True):
+                if button == 1:
+                    self.deck.record()
+                elif button == 2:
+                    self.deck.stop()
+                elif button == 3:
+                    self.deck.play()
+                elif button == 4:
+                    self.deck.undo()
 
     def update(self):
         self.root.update()
+        self.handle_joystick()
         self.deck.update()
         self.deck.skip(self.skipdist)
+        self.deck.skip(self.joystick_skipdist)
 
     def mainloop(self):
         last_display_update = -1000

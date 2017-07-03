@@ -4,6 +4,7 @@ Todo:
 * update audio.py with code from Canvas.
 * make audio device I/O.
 * get latency from audio device object.
+* add solo button (button 10).
 
 https://python-sounddevice.readthedocs.io/en/0.3.7/#sounddevice.Stream
 

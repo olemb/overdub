@@ -98,6 +98,9 @@ class GUI:
                 self.joystick_skipdist = value
 
             elif (event['type'], event['value']) == ('button', True):
+                # Add 1 because buttons are numbered 1-10 on the joystick.
+                button = event['number'] + 1
+
                 if button == 1:
                     self.deck.record()
                 elif button == 2:

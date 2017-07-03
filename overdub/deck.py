@@ -31,6 +31,8 @@ class Deck:
         else:
             self.blocks = blocks
 
+        self.undo_blocks = None
+
         if backend == 'pulse':
             self.audio_out = pulse.AudioDevice('w')
             self.audio_in = pulse.AudioDevice('r')
@@ -48,6 +50,77 @@ class Deck:
 
         else:
             raise ValueError('unknown audio backend {!r}'.format(backend))
+
+    def record(self, time=None):
+        self.mode = 'stopped'
+        self.time = time
+
+    def play(self, time=None):
+        self.mode = 'playing'
+        self.time = time
+
+    def record(self, time=None):
+        self.undo_blocks = self.blocks.copy()
+        self.mode = 'recording'
+        self.time = time
+
+    def stop(self, time=None):
+        self.mode = 'stopped'
+        self.time = time
+
+    def toggle_play(self):
+        if self.mode == 'stopped':
+            self.play()
+        else:
+            self.stop()
+
+    def toggle_record(self):
+        if self.mode == 'recording':
+            self.play()
+        else:
+            self.record()
+
+    @property
+    def time(self):
+        return self.pos * audio.SECONDS_PER_BLOCK
+
+    @time.setter
+    def time(self, time):
+        # This is used for keyword arguments where the default is None.
+        if time is None:
+            return
+
+        self.pos = int(round(time * audio.BLOCKS_PER_SECOND))
+
+        if self.pos < 0:
+            self.pos = 0
+
+    @property
+    def end(self):
+        return len(self.blocks) * audio.SECONDS_PER_BLOCK
+ 
+    def skip(self, time):
+        if time == 0:
+            return
+
+        if self.mode == 'recording':
+            self.mode = 'playing'
+
+        self.time += time
+
+    def undo(self):
+        """Restores from undo buffer.
+
+        Returns True if restore was done or False if the undo buffer
+        was empty.
+        """
+        if self.mode == 'recording':
+            self.mode = 'playing'
+
+        if self.undo_blocks is None:
+            return False
+        else:
+            self.blocks, self.undo_blocks = self.undo_blocks, None
 
     # Todo: better name:
     def close(self):

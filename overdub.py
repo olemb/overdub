@@ -4,6 +4,8 @@ http://www.ittc.ku.edu/~niehaus/classes/448-s04/448-standard/simple_gui_examples
 http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm
 """
 import os
+import sys
+import time
 import tkinter
 import tkinter.font
 from tkinter import *
@@ -15,23 +17,26 @@ def get_font(size):
 
 
 class GUI:
-    def __init__(self, filename, blocks):
+    def __init__(self, deck, filename):
+        self.deck = deck
         self.filename = filename
+
+        self.done = False
 
         self.player = None
         self.recorder = None
 
-        self.undo_blocks = None
-
         self.root = root = Tk()
         root.title('Overdub')
+
+        root.protocol("WM_DELETE_WINDOW", self.quit)
 
         self.statusbar = StringVar()
         label = Label(textvariable=self.statusbar)
         label['font'] = get_font(size=30)
         label.pack(side=TOP,padx=10,pady=10)
 
-        label = Label(text='Writing to: ' + self.filename)
+        label = Label(text=self.filename)
         label['font'] = get_font(size=15)
         label.pack(side=TOP,padx=10,pady=10)
 
@@ -39,101 +44,68 @@ class GUI:
 
         if False:
             for (text, command) in [
-                    ('Record', self.record),
-                    ('Play', self.play),
-                    ('Stop', self.stop),
-                    ('Undo', self.undo),
+                    ('Record', self.deck.record),
+                    ('Play', self.deck.play),
+                    ('Stop', self.deck.stop),
+                    ('Undo', self.deck.undo),
             ]:
                 button = Button(root, text=text, command=command)
                 button['font'] = get_font(size=30)
                 button.pack(side=LEFT)
 
-        self.root.bind("<KeyPress-Return>", lambda event: self.toggle_record())
-        self.root.bind("<KeyPress-space>", lambda event: self.toggle_play())
-        self.root.bind("<KeyPress-BackSpace>", lambda event: self.undo())
+        self.root.bind('<KeyPress-Return>', lambda _: self.deck.toggle_record())
+        self.root.bind('<KeyPress-space>', lambda _: self.deck.toggle_play())
+        self.root.bind('<KeyPress-BackSpace>', lambda _: self.deck.undo())
+
+        self.root.bind('<ButtonPress-2>', lambda _: self.deck.toggle_record())
 
         self.skipdist = 0
-        skipdist = 10
 
-        def add_skipdist(skipdist):
-            self.skipdist += skipdist
+        def skip_less(_):
+            self.skipdist -= 1
+            
+        def skip_more(_):
+            self.skipdist += 1
 
         # We can't use KeyPress/KeyRelease because of key repeat.
-        self.root.bind("<ButtonPress-1>", lambda event: add_skipdist(-skipdist))
-        self.root.bind("<ButtonRelease-1>", lambda event: add_skipdist(skipdist))
+        self.root.bind('<ButtonPress-1>', skip_less)
+        self.root.bind('<ButtonRelease-1>', skip_more)
 
-        self.root.bind("<ButtonPress-2>", lambda event: self.toggle_record())
+        self.root.bind('<ButtonPress-3>', skip_more)
+        self.root.bind('<ButtonRelease-3>', skip_less)
 
-        self.root.bind("<ButtonPress-3>", lambda event: add_skipdist(skipdist))
-        self.root.bind("<ButtonRelease-3>", lambda event: add_skipdist(-skipdist))
+        self.root.bind('<KeyPress-Left>', skip_less)
+        self.root.bind('<KeyRelease-Left>', skip_more)
 
-        self.deck = Deck(blocks)
-        self.update_statusbar()
+        self.root.bind('<KeyPress-Right>', skip_more)
+        self.root.bind('<KeyRelease-Right>', skip_less)
+
 
     def update(self):
         self.root.update()
-        self.root.update_idletasks()
         self.deck.update()
-        self.skip(self.skipdist)
+        self.deck.skip(self.skipdist)
 
     def mainloop(self):
+        last_display_update = -1000
+
         try:
-            while True:
+            while not self.done:
                 self.update()
+
+                now = time.time()
+                if now - last_display_update >= 0.05:
+                    self.update_display()
+                    last_display_update = now
+
         except KeyboardInterrupt:
             return
+        finally:
+            self.root.quit()
+            self.root.destroy()
 
-    def play(self):
-        self.deck.mode = 'playing'
-
-    def record(self):
-        self.undo_blocks = self.deck.blocks.copy()
-        self.deck.mode = 'recording'
-
-    def stop(self):
-        self.deck.mode = 'stopped'
-
-    def toggle_play(self):
-        if self.deck.mode == 'stopped':
-            self.play()
-        else:
-            self.stop()
-
-    def toggle_record(self):
-        if self.deck.mode == 'recording':
-            self.play()
-        else:
-            self.record()
-
-    def skip(self, numblocks=0):
-        if numblocks == 0:
-            return
-
-        if self.deck.mode == 'recording':
-            self.deck.mode = 'playing'
-
-        self.deck.pos += numblocks
-        if self.deck.pos < 0:
-            self.deck.pos = 0
-
-    def undo(self):
-        if self.deck.mode == 'recording':
-            self.deck.mode = 'playing'
-
-        if self.undo_blocks is None:
-            pass
-        else:
-            self.deck.blocks[:] = self.undo_blocks
-            self.undo_blocks = None
-
-    def update_statusbar(self):
-        #text = '{} / {} {}'.format(self.deck.pos,
-        #                           len(self.deck.blocks),
-        #                           self.deck.mode)
-        #if self.undo_blocks is not None:
-        #    text += '(undo possible)'
-
-        if (self.deck.pos * audio.SECONDS_PER_BLOCK) <= 1:
+    def update_display(self):
+        if (self.deck.time) <= 1:
             near_start = '.'
         else:
             near_start = ' '
@@ -144,27 +116,42 @@ class GUI:
             'stopped': ' ',
         }[self.deck.mode]
 
-        if self.undo_blocks is not None:
-            undo_text = '~'
+        if self.deck.undo_blocks is not None:
+            undo_text = ' *'
         else:
-            undo_text = ' '
+            undo_text = ''
 
-        text = '{} {}  {}'.format(near_start, mode_text, undo_text)
+        # text = '{} {}  {}'.format(near_start, mode_text, undo_text)
+
+        text = '{:02.2f} / {:02.2f} {}{}'.format(self.deck.time,
+                                                 self.deck.end,
+                                                 self.deck.mode,
+                                                 undo_text)
 
         self.statusbar.set(text)
-        self.root.after(10, self.update_statusbar)
+
+    def quit(self):
+        self.done = True
 
 
-filename = os.path.expanduser('~/Desktop/overdub-out.wav')
+def main():
+    filename = os.path.expanduser('~/Desktop/overdub-out.wav')
 
-if sys.argv[1:]:
-    blocks = audio.load(sys.argv[1])
-else:
-    blocks = []
+    if sys.argv[1:]:
+        blocks = audio.load(sys.argv[1])
+    else:
+        blocks = []
 
-gui = GUI(filename, blocks)
+    deck = Deck(blocks)
+    gui = GUI(deck, filename)
 
-try:
-    gui.mainloop()
-finally:
-    audio.save(filename, gui.deck.blocks)
+    try:
+        gui.mainloop()
+    finally:
+        print('\nSaving to {}\n'.format(filename))
+        audio.save(filename, gui.deck.blocks)
+
+
+if __name__ == '__main__':
+    sys.exit(main())
+

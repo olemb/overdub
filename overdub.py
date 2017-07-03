@@ -92,8 +92,15 @@ class GUI:
                 value = event['value']
 
                 # Sometimes the joystick doesn't go all the way back to 0.0.
-                if abs(value) < 0.05:
+                if abs(value) < 0.01:
                     value = 0
+
+                if value >= 0:
+                    sign = 1
+                else:
+                    sign = -1
+
+                value = (abs(value) ** 4) * 0.8 * sign
                 
                 self.joystick_skipdist = value
 

@@ -88,8 +88,12 @@ class GUI:
 
     def handle_joystick(self):
         for event in self.joystick.events:
-            if (event['type'], event['number']) == ('axis', 2):
+            # Right joystick.
+            if (event['type'], event['number']) == ('axis', 3):
                 value = event['value']
+
+                # Invert axis so we pull to rewind.
+                value = -value
 
                 # Sometimes the joystick doesn't go all the way back to 0.0.
                 if abs(value) < 0.01:

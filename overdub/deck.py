@@ -26,6 +26,8 @@ class Deck:
         self.pos = 0
         self.mode = 'stopped'
 
+        self.meter = 0
+
         if blocks is None:
             self.blocks = []
         else:
@@ -127,6 +129,10 @@ class Deck:
         self.audio_in.close()
         self.audio_out.close()
 
+    def update_meter(self, block):
+        # Todo: scale value by sample rate / block size.
+        self.meter = max(self.meter - 0.04, audio.get_max_value(block))
+
     def update(self):
         inblock = self.audio_in.read_block()
         outblock = audio.SILENCE
@@ -145,5 +151,7 @@ class Deck:
 
         if self.mode != 'stopped':
             self.pos += 1
+
+        self.update_meter(audio.add_blocks([inblock, outblock]))
 
         self.audio_out.write_block(outblock)

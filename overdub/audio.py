@@ -66,6 +66,15 @@ def add_blocks(blocks):
     return blocksum
 
 
+def get_max_value(block):
+    """Return maximum absolute sample value in block.
+    
+    The value is normalized to 0..1.
+    """
+    max_sample = 32768
+    return audioop.max(block, SAMPLE_WIDTH) / max_sample
+
+
 def block2sec(numblocks):
     return numblocks * SECONDS_PER_BLOCK
 

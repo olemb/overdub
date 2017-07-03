@@ -15,7 +15,7 @@ from overdub.joystick import Joystick
 
 
 def get_font(size):
-    return tkinter.font.Font(family="Helvetica", size=size)
+    return tkinter.font.Font(family="Courier", size=size)
 
 
 class GUI:
@@ -128,6 +128,13 @@ class GUI:
         self.deck.skip(self.skipdist)
         self.deck.skip(self.joystick_skipdist)
 
+        bg = {'recording': 'red',
+              'playing': 'green',
+              'stopped': 'black'}[self.deck.mode]
+        self.root.configure(background=bg)
+
+
+
     def mainloop(self):
         last_display_update = -1000
 
@@ -169,6 +176,9 @@ class GUI:
                                                  self.deck.end,
                                                  self.deck.mode,
                                                  undo_text)
+
+        meter = '#' * int(self.deck.meter * 20)
+        text += ' [{}]'.format(meter.ljust(20))
 
         self.statusbar.set(text)
 

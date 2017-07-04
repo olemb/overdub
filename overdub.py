@@ -26,7 +26,7 @@ def format_time(seconds):
     seconds = int(seconds)
     dec = int(dec * 100)
 
-    return '{:2d}:{:02d}:{:02d}'.format(minutes, seconds, dec)
+    return '{:d}:{:02d}:{:02d}'.format(minutes, seconds, dec)
 
 
 class GUI:
@@ -157,24 +157,25 @@ class GUI:
             pass
 
     def update_display(self):
+        flags = ''
+
         if self.deck.undo_blocks is not None:
-            undo_text = ' (undo)'
-        else:
-            undo_text = ''
+            flags += '*'
 
         if self.deck.solo:
-            solo_text = ' (solo)'
-        else:
-            solo_text = ''
+            flags += 's'
 
-        text = '{} / {} {}{}{}'.format(format_time(self.deck.time),
-                                       format_time(self.deck.end),
-                                       self.deck.mode,
-                                       undo_text,
-                                       solo_text)
+        if flags:
+            flags = ' ' + flags
 
         meter = '#' * int(self.deck.meter * 20)
-        text += ' [{}]'.format(meter.ljust(20))
+        meter = '[{}]'.format(meter.ljust(20))
+
+        text = '{} / {} {}{} {}'.format(format_time(self.deck.time),
+                                        format_time(self.deck.end),
+                                        self.deck.mode,
+                                        flags,
+                                        meter)
 
         self.statusbar.set(text)
 

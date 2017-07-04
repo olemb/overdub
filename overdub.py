@@ -18,6 +18,17 @@ def get_font(size):
     return tkinter.font.Font(family="Courier", size=size)
 
 
+def format_time(seconds):
+    minutes, seconds = divmod(seconds, 60)
+    seconds, dec = divmod(seconds, 1)
+
+    minutes = int(minutes)
+    seconds = int(seconds)
+    dec = int(dec * 100)
+
+    return '{:2d}:{:02d}:{:02d}'.format(minutes, seconds, dec)
+
+
 class GUI:
     def __init__(self, deck, filename):
         self.deck = deck
@@ -155,11 +166,11 @@ class GUI:
         else:
             solo_text = ''
 
-        text = '{:02.2f} / {:02.2f} {}{}{}'.format(self.deck.time,
-                                                   self.deck.end,
-                                                   self.deck.mode,
-                                                   undo_text,
-                                                   solo_text)
+        text = '{} / {} {}{}{}'.format(format_time(self.deck.time),
+                                       format_time(self.deck.end),
+                                       self.deck.mode,
+                                       undo_text,
+                                       solo_text)
 
         meter = '#' * int(self.deck.meter * 20)
         text += ' [{}]'.format(meter.ljust(20))

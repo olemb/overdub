@@ -105,18 +105,22 @@ class GUI:
                 
                 self.gamepad_skipdist = value
 
-            elif (event['type'], event['value']) == ('button', True):
+            elif event['type'] == 'button':
                 # Add 1 because buttons are numbered 1-10 on the gamepad.
                 button = event['code'] + 1
 
-                if button == 1:
-                    self.deck.record()
-                elif button == 2:
-                    self.deck.stop()
-                elif button == 3:
-                    self.deck.play()
-                elif button == 4:
-                    self.deck.undo()
+                if button == 10:
+                    self.deck.solo = bool(event['value'])
+
+                elif event['value'] is True:
+                    if button == 1:
+                        self.deck.record()
+                    elif button == 2:
+                        self.deck.stop()
+                    elif button == 3:
+                        self.deck.play()
+                    elif button == 4:
+                        self.deck.undo()
 
     def update(self):
         # self.root.update()
@@ -142,14 +146,20 @@ class GUI:
 
     def update_display(self):
         if self.deck.undo_blocks is not None:
-            undo_text = ' *'
+            undo_text = ' (undo)'
         else:
             undo_text = ''
 
-        text = '{:02.2f} / {:02.2f} {}{}'.format(self.deck.time,
-                                                 self.deck.end,
-                                                 self.deck.mode,
-                                                 undo_text)
+        if self.deck.solo:
+            solo_text = ' (solo)'
+        else:
+            solo_text = ''
+
+        text = '{:02.2f} / {:02.2f} {}{}{}'.format(self.deck.time,
+                                                   self.deck.end,
+                                                   self.deck.mode,
+                                                   undo_text,
+                                                   solo_text)
 
         meter = '#' * int(self.deck.meter * 20)
         text += ' [{}]'.format(meter.ljust(20))

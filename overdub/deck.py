@@ -25,7 +25,7 @@ class Deck:
     def __init__(self, blocks=None):
         self.pos = 0
         self.mode = 'stopped'
-
+        self.solo = False
         self.meter = 0
 
         if blocks is None:
@@ -137,7 +137,7 @@ class Deck:
 
         outblock = audio.SILENCE
 
-        if self.mode != 'stopped':
+        if self.mode != 'stopped' and not self.solo:
             block = play_block(self.blocks, self.pos)
             outblock = audio.add_blocks([outblock, block])
 
@@ -150,6 +150,9 @@ class Deck:
         if self.mode != 'stopped':
             self.pos += 1
 
-        self.update_meter(audio.add_blocks([inblock, outblock]))
+        if self.solo:
+            self.update_meter(inblock)
+        else:
+            self.update_meter(audio.add_blocks([inblock, outblock]))
         
         return outblock

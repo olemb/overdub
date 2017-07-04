@@ -10,6 +10,8 @@ from pyaudio import PyAudio
 
 pa = None
 
+BLOCK_SIZE = 4096
+
 FRAME_RATE = 44100
 SAMPLE_WIDTH = 2
 NUM_CHANNELS = 2
@@ -113,42 +115,24 @@ def save(filename, blocks):
 
 
 class AudioDevice:
-    def __init__(self):
+    def __init__(self, callback=None):
         _pa_init()
-        self.closed = False
-        self.stream = pa.open(input=True, output=True,
+
+        def callback_wrapper(inblock, frame_count, time_info, status):
+            return (callback(inblock), pyaudio.paContinue)
+
+        self.stream = pa.open(input=True,
+                              output=True,
+                              stream_callback=callback_wrapper,
                               **PA_AUDIO_FORMAT)
 
-        self.latency = (self.stream.get_input_latency() \
-                        + self.stream.get_output_latency())
-        self.blocklag = int(round(self.latency * BLOCKS_PER_SECOND))
-
-        # Fill output buffer. (Output latency + one block.)
-        out_blocks = int(round(self.stream.get_output_latency() \
-                               * BLOCKS_PER_SECOND))
-        for _ in range(out_blocks + 1):
-            self.write_block(SILENCE)
-
-    def read_block(self):
-        if self.closed:
-            raise ValueError('audio device is closed')
-
-        return self.stream.read(FRAMES_PER_BLOCK)
-
-    def write_block(self, block):
-        if self.closed:
-            raise ValueError('audio device is closed')
-
-        if not self.closed:
-            self.stream.write(block)
+        self.latency = self.stream.get_input_latency() \
+                       + self.stream.get_output_latency()
+        self.play_ahead = int(round(self.latency * BLOCKS_PER_SECOND))
+        self.closed = False
 
     def close(self):
         if not self.closed:
             self.stream.close()
+            self.closed = True
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *_, **__):
-        self.close()
-        return False

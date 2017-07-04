@@ -25,8 +25,6 @@ class GUI:
 
         self.joystick = Joystick(optional=True)
 
-        self.done = False
-
         self.player = None
         self.recorder = None
 
@@ -86,14 +84,13 @@ class GUI:
         self.root.bind('<KeyPress-Right>', skip_more)
         self.root.bind('<KeyRelease-Right>', skip_less)
 
+        self.update()
+
     def handle_joystick(self):
         for event in self.joystick.events:
             # Right joystick.
-            if (event['type'], event['number']) == ('axis', 3):
+            if (event['type'], event['number']) == ('axis', 2):
                 value = event['value']
-
-                # Invert axis so we pull to rewind.
-                value = -value
 
                 # Sometimes the joystick doesn't go all the way back to 0.0.
                 if abs(value) < 0.01:
@@ -104,7 +101,7 @@ class GUI:
                 else:
                     sign = -1
 
-                value = (abs(value) ** 4) * 0.8 * sign
+                value = (abs(value) ** 4) * 4 * sign
                 
                 self.joystick_skipdist = value
 
@@ -122,55 +119,32 @@ class GUI:
                     self.deck.undo()
 
     def update(self):
-        self.root.update()
+        # self.root.update()
         self.handle_joystick()
-        self.deck.update()
         self.deck.skip(self.skipdist)
         self.deck.skip(self.joystick_skipdist)
+        self.update_display()
 
         bg = {'recording': 'red',
               'playing': 'green',
               'stopped': 'black'}[self.deck.mode]
         self.root.configure(background=bg)
 
-
+        self.root.after(50, self.update)
 
     def mainloop(self):
-        last_display_update = -1000
-
         try:
-            while not self.done:
-                self.update()
-
-                now = time.time()
-                if now - last_display_update >= 0.05:
-                    self.update_display()
-                    last_display_update = now
-
+            self.root.mainloop()
         except KeyboardInterrupt:
             return
         finally:
-            self.root.quit()
-            self.root.destroy()
+            pass
 
     def update_display(self):
-        if (self.deck.time) <= 1:
-            near_start = '.'
-        else:
-            near_start = ' '
-
-        mode_text = {
-            'recording': '*',
-            'playing': '>',
-            'stopped': ' ',
-        }[self.deck.mode]
-
         if self.deck.undo_blocks is not None:
             undo_text = ' *'
         else:
             undo_text = ''
-
-        # text = '{} {}  {}'.format(near_start, mode_text, undo_text)
 
         text = '{:02.2f} / {:02.2f} {}{}'.format(self.deck.time,
                                                  self.deck.end,
@@ -183,7 +157,8 @@ class GUI:
         self.statusbar.set(text)
 
     def quit(self):
-        self.done = True
+        self.root.quit()
+        self.root.destroy()
 
 
 def main():
@@ -206,4 +181,3 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
-

@@ -180,7 +180,8 @@ class GUI:
 
 
 def main():
-    filename = os.path.expanduser('~/Desktop/overdub-out.wav')
+    filename = '~/Desktop/overdub-out.wav'
+    expanded_filename = os.path.expanduser(filename)
 
     if sys.argv[1:]:
         blocks = audio.load(sys.argv[1])
@@ -194,8 +195,8 @@ def main():
         gui.mainloop()
     finally:
         deck.close()
-        print('\nSaving to {}\n'.format(filename))
-        audio.save(filename, gui.deck.blocks)
+        print('\nSaving to {}\n'.format(expanded_filename))
+        audio.save(expanded_filename, gui.deck.blocks)
 
 
 if __name__ == '__main__':

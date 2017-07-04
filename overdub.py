@@ -6,9 +6,8 @@ http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm
 import os
 import sys
 import time
-import tkinter
+import tkinter as tk
 import tkinter.font
-from tkinter import *
 from overdub import audio
 from overdub.deck import Deck
 from overdub.gamepad import Gamepad
@@ -40,22 +39,22 @@ class GUI:
         self.player = None
         self.recorder = None
 
-        self.window = Tk()
+        self.window = tk.Tk()
         self.window.title('Overdub')
 
         self.window.protocol("WM_DELETE_WINDOW", self.quit)
 
-        self.statusbar = StringVar()
-        label = Label(textvariable=self.statusbar)
+        self.statusbar = tk.StringVar()
+        label = tk.Label(textvariable=self.statusbar)
         label['font'] = get_font(size=30)
         label['foreground'] = 'white'
-        label.pack(side=TOP,padx=10,pady=10)
+        label.pack(side=tk.TOP, padx=10, pady=10)
         self.statusbar_label = label
 
-        label = Label(text=self.filename)
+        label = tk.Label(text=self.filename)
         label['font'] = get_font(size=15)
         label['foreground'] = 'white'
-        label.pack(side=TOP,padx=10,pady=10)
+        label.pack(side=tk.TOP, padx=10, pady=10)
         self.filename_label = label
 
         def wrap(func):

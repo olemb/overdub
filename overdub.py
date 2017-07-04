@@ -115,6 +115,7 @@ class GUI:
                 value = (abs(value) ** 4) * 4 * sign
                 
                 self.gamepad_skipdist = value
+                self.deck.scrub = bool(value)
 
             elif event['type'] == 'button':
                 # Add 1 because buttons are numbered 1-10 on the gamepad.

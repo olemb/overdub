@@ -26,6 +26,7 @@ class Deck:
         self.pos = 0
         self.mode = 'stopped'
         self.solo = False
+        self.scrub = False
         self.meter = 0
 
         if blocks is None:
@@ -137,7 +138,7 @@ class Deck:
 
         outblock = audio.SILENCE
 
-        if self.mode != 'stopped' and not self.solo:
+        if (self.mode != 'stopped' or self.scrub) and not self.solo:
             block = play_block(self.blocks, self.pos)
             outblock = audio.add_blocks([outblock, block])
 

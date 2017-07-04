@@ -89,7 +89,7 @@ class GUI:
     def handle_joystick(self):
         for event in self.joystick.events:
             # Right joystick.
-            if (event['type'], event['number']) == ('axis', 2):
+            if (event['type'], event['code']) == ('axis', 2):
                 value = event['value']
 
                 # Sometimes the joystick doesn't go all the way back to 0.0.
@@ -107,7 +107,7 @@ class GUI:
 
             elif (event['type'], event['value']) == ('button', True):
                 # Add 1 because buttons are numbered 1-10 on the joystick.
-                button = event['number'] + 1
+                button = event['code'] + 1
 
                 if button == 1:
                     self.deck.record()

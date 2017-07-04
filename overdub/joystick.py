@@ -77,12 +77,12 @@ def unpack_event(data):
     (raw['timestamp'],
      raw['value'],
      raw['type'],
-     raw['number']) = struct.unpack('IhBB', data)
+     raw['code']) = struct.unpack('IhBB', data)
 
     event = {}
     event['init'] = bool(raw['type'] & 0x80)
     event['type'] = {1: 'button', 2: 'axis'}[raw['type'] & 0x7f]
-    event['number'] = raw['number']
+    event['code'] = raw['code']
     event['raw_value'] = raw['value']
     event['timestamp'] = raw['timestamp']
 

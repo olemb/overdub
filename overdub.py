@@ -11,7 +11,7 @@ import tkinter.font
 from tkinter import *
 from overdub import audio
 from overdub.deck import Deck
-from overdub.joystick import Joystick
+from overdub.gamepad import Gamepad
 
 
 def get_font(size):
@@ -23,7 +23,7 @@ class GUI:
         self.deck = deck
         self.filename = filename
 
-        self.joystick = Joystick(optional=True)
+        self.gamepad = Gamepad(optional=True)
 
         self.player = None
         self.recorder = None
@@ -69,7 +69,7 @@ class GUI:
         def skip_more(_):
             self.skipdist += 1
 
-        self.joystick_skipdist = 0
+        self.gamepad_skipdist = 0
 
         # We can't use KeyPress/KeyRelease because of key repeat.
         self.root.bind('<ButtonPress-1>', skip_less)
@@ -86,13 +86,13 @@ class GUI:
 
         self.update()
 
-    def handle_joystick(self):
-        for event in self.joystick.events:
-            # Right joystick.
+    def handle_gamepad(self):
+        for event in self.gamepad.events:
+            # Right gamepad.
             if (event['type'], event['code']) == ('axis', 2):
                 value = event['value']
 
-                # Sometimes the joystick doesn't go all the way back to 0.0.
+                # Sometimes the gamepad doesn't go all the way back to 0.0.
                 if abs(value) < 0.01:
                     value = 0
 
@@ -103,10 +103,10 @@ class GUI:
 
                 value = (abs(value) ** 4) * 4 * sign
                 
-                self.joystick_skipdist = value
+                self.gamepad_skipdist = value
 
             elif (event['type'], event['value']) == ('button', True):
-                # Add 1 because buttons are numbered 1-10 on the joystick.
+                # Add 1 because buttons are numbered 1-10 on the gamepad.
                 button = event['code'] + 1
 
                 if button == 1:
@@ -120,9 +120,9 @@ class GUI:
 
     def update(self):
         # self.root.update()
-        self.handle_joystick()
+        self.handle_gamepad()
         self.deck.skip(self.skipdist)
-        self.deck.skip(self.joystick_skipdist)
+        self.deck.skip(self.gamepad_skipdist)
         self.update_display()
 
         bg = {'recording': 'red',

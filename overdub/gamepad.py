@@ -98,7 +98,7 @@ def read_event(device):
     return unpack_event(device.read(EVENT_SIZE))
 
 
-class Joystick:
+class Gamepad:
     def __init__(self, number=0, optional=False, callback=None):
         self.number = number
         self.path = '/dev/input/js{}'.format(number)
@@ -154,7 +154,7 @@ class Joystick:
 if __name__ == '__main__':
     import time
 
-    js = Joystick(number=0, optional=True)
+    js = Gamepad(number=0, optional=True)
 
     while True:
         print(js.events)

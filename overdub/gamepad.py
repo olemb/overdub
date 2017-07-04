@@ -60,9 +60,8 @@ import queue
 import struct
 import threading
 
-JS_EVENT_BUTTON = 0x1
-JS_EVENT_AXIS = 0x2
-JS_EVENT_INIT = 0x80
+JS_EVENT_BUTTON = 1
+JS_EVENT_AXIS = 2
 
 EVENT_SIZE = 8
 

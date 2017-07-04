@@ -40,10 +40,10 @@ class GUI:
         self.player = None
         self.recorder = None
 
-        self.root = root = Tk()
-        root.title('Overdub')
+        self.window = Tk()
+        self.window.title('Overdub')
 
-        root.protocol("WM_DELETE_WINDOW", self.quit)
+        self.window.protocol("WM_DELETE_WINDOW", self.quit)
 
         self.statusbar = StringVar()
         label = Label(textvariable=self.statusbar)
@@ -58,11 +58,15 @@ class GUI:
         label.pack(side=TOP,padx=10,pady=10)
         self.filename_label = label
 
-        self.root.bind('<KeyPress-Return>', lambda _: self.deck.toggle_record())
-        self.root.bind('<KeyPress-space>', lambda _: self.deck.toggle_play())
-        self.root.bind('<KeyPress-BackSpace>', lambda _: self.deck.undo())
+        def wrap(func):
+            """Wrap event handler in a function that ignores event."""
+            return lambda *_: func()
 
-        self.root.bind('<ButtonPress-2>', lambda _: self.deck.toggle_record())
+        self.window.bind('<KeyPress-Return>', wrap(self.deck.toggle_record))
+        self.window.bind('<KeyPress-space>', wrap(self.deck.toggle_play))
+        self.window.bind('<KeyPress-BackSpace>', wrap(self.deck.undo))
+
+        self.window.bind('<ButtonPress-2>', wrap(self.deck.toggle_record))
 
         self.skipdist = 0
 
@@ -75,27 +79,27 @@ class GUI:
         self.gamepad_skipdist = 0
 
         # We can't use KeyPress/KeyRelease because of key repeat.
-        self.root.bind('<ButtonPress-1>', skip_less)
-        self.root.bind('<ButtonRelease-1>', skip_more)
+        self.window.bind('<ButtonPress-1>', skip_less)
+        self.window.bind('<ButtonRelease-1>', skip_more)
 
-        self.root.bind('<ButtonPress-3>', skip_more)
-        self.root.bind('<ButtonRelease-3>', skip_less)
+        self.window.bind('<ButtonPress-3>', skip_more)
+        self.window.bind('<ButtonRelease-3>', skip_less)
 
-        self.root.bind('<KeyPress-Left>', skip_less)
-        self.root.bind('<KeyRelease-Left>', skip_more)
+        self.window.bind('<KeyPress-Left>', skip_less)
+        self.window.bind('<KeyRelease-Left>', skip_more)
 
-        self.root.bind('<KeyPress-Right>', skip_more)
-        self.root.bind('<KeyRelease-Right>', skip_less)
+        self.window.bind('<KeyPress-Right>', skip_more)
+        self.window.bind('<KeyRelease-Right>', skip_less)
 
-        self.root.bind('<KeyPress-f>', self.toggle_fullscreen)
+        self.window.bind('<KeyPress-f>', wrap(self.toggle_fullscreen))
 
-        self.root.attributes("-fullscreen", self.fullscreen)
+        self.window.attributes("-fullscreen", self.fullscreen)
 
         self.update()
 
-    def toggle_fullscreen(self, *_):
+    def toggle_fullscreen(self):
         self.fullscreen = not self.fullscreen
-        self.root.attributes("-fullscreen", self.fullscreen)
+        self.window.attributes("-fullscreen", self.fullscreen)
 
     def handle_gamepad(self):
         for event in self.gamepad.events:
@@ -135,7 +139,7 @@ class GUI:
                         self.deck.undo()
 
     def update(self):
-        # self.root.update()
+        # self.window.update()
         self.handle_gamepad()
         self.deck.skip(self.skipdist)
         self.deck.skip(self.gamepad_skipdist)
@@ -145,14 +149,14 @@ class GUI:
                       'playing': '#050',  # Green
                       'stopped': 'black'}[self.deck.mode]
 
-        for widget in [self.root, self.statusbar_label, self.filename_label]:
+        for widget in [self.window, self.statusbar_label, self.filename_label]:
             widget['background'] = background
 
-        self.root.after(50, self.update)
+        self.window.after(50, self.update)
 
     def mainloop(self):
         try:
-            self.root.mainloop()
+            self.window.mainloop()
         except KeyboardInterrupt:
             return
         finally:
@@ -182,8 +186,8 @@ class GUI:
         self.statusbar.set(text)
 
     def quit(self):
-        self.root.quit()
-        self.root.destroy()
+        self.window.quit()
+        self.window.destroy()
 
 
 def main():

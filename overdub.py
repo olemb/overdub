@@ -30,9 +30,10 @@ def format_time(seconds):
 
 
 class GUI:
-    def __init__(self, deck, filename):
+    def __init__(self, deck, filename, fullscreen=True):
         self.deck = deck
         self.filename = filename
+        self.fullscreen = fullscreen
 
         self.gamepad = Gamepad(optional=True)
 
@@ -56,8 +57,6 @@ class GUI:
         label['foreground'] = 'white'
         label.pack(side=TOP,padx=10,pady=10)
         self.filename_label = label
-
-        self.root.attributes("-fullscreen", True)
 
         self.root.bind('<KeyPress-Return>', lambda _: self.deck.toggle_record())
         self.root.bind('<KeyPress-space>', lambda _: self.deck.toggle_play())
@@ -88,7 +87,15 @@ class GUI:
         self.root.bind('<KeyPress-Right>', skip_more)
         self.root.bind('<KeyRelease-Right>', skip_less)
 
+        self.root.bind('<KeyPress-f>', self.toggle_fullscreen)
+
+        self.root.attributes("-fullscreen", self.fullscreen)
+
         self.update()
+
+    def toggle_fullscreen(self, *_):
+        self.fullscreen = not self.fullscreen
+        self.root.attributes("-fullscreen", self.fullscreen)
 
     def handle_gamepad(self):
         for event in self.gamepad.events:

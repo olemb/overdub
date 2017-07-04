@@ -175,6 +175,7 @@ def main():
     try:
         gui.mainloop()
     finally:
+        deck.close()
         print('\nSaving to {}\n'.format(filename))
         audio.save(filename, gui.deck.blocks)
 

@@ -22,7 +22,7 @@ def record_block(blocks, pos, block):
 
 
 class Deck:
-    def __init__(self, blocks=None, backend='pyaudio'):
+    def __init__(self, blocks=None):
         self.pos = 0
         self.mode = 'stopped'
 
@@ -35,14 +35,12 @@ class Deck:
 
         self.undo_blocks = None
 
-        if backend == 'pyaudio':
-            # We're opening the output first because we need to feed it some
-            # blocks right away.
-            self.audiodev = audio.AudioDevice(self._audio_callback)
-        else:
-            raise ValueError('unknown audio backend {!r}'.format(backend))
-
         self._sync_event = threading.Event()
+        self._stream = audio.Stream(self._audio_callback)
+        self._stream.start()
+
+    def close(self):
+        self._stream.stop()
 
     def _sync(self):
         # Todo: timeout.
@@ -126,16 +124,15 @@ class Deck:
         else:
             self.blocks, self.undo_blocks = self.undo_blocks, None
 
-    # Todo: better name:
-    def close(self):
-        self.stop()
-        self.audiodev.close()
-
     def update_meter(self, block):
         # Todo: scale value by sample rate / block size.
         self.meter = max(self.meter - 0.04, audio.get_max_value(block))
 
     def _audio_callback(self, inblock):
+        # Todo: why is this needed?
+        # Without this conversion every block in self.blocks will be the same.
+        inblock = bytes(inblock)
+
         self._sync_event.set()
 
         outblock = audio.SILENCE
@@ -147,7 +144,7 @@ class Deck:
         # We need to record after playing back in case the block is
         # recorded at the same position as playback.
         if self.mode == 'recording':
-            recpos = self.pos - self.audiodev.play_ahead
+            recpos = self.pos - self._stream.play_ahead
             record_block(self.blocks, recpos, inblock)
 
         if self.mode != 'stopped':

@@ -1,23 +1,13 @@
-import sys
-if sys.version_info.major < 3:
-    sys.exit('Requires Python 3')
-
 import wave
-import atexit
 import audioop
-import pyaudio
-from pyaudio import PyAudio
-
-pa = None
-
-BLOCK_SIZE = 4096
+import sounddevice
 
 FRAME_RATE = 44100
 SAMPLE_WIDTH = 2
 NUM_CHANNELS = 2
 FRAME_SIZE = SAMPLE_WIDTH * NUM_CHANNELS
 
-FRAMES_PER_BLOCK = 1048
+FRAMES_PER_BLOCK = 1024
 BYTES_PER_BLOCK = FRAMES_PER_BLOCK * FRAME_SIZE
 
 SILENCE = b'\x00' * BYTES_PER_BLOCK
@@ -26,29 +16,6 @@ BYTES_PER_SECOND = FRAME_RATE * FRAME_SIZE
 SECONDS_PER_BYTE = 1 / BYTES_PER_SECOND
 SECONDS_PER_BLOCK = BYTES_PER_BLOCK * SECONDS_PER_BYTE
 BLOCKS_PER_SECOND = 1 / SECONDS_PER_BLOCK
-
-PA_AUDIO_FORMAT = dict(format=pyaudio.paInt16,
-                       channels=NUM_CHANNELS,
-                       rate=FRAME_RATE,
-                       frames_per_buffer=FRAMES_PER_BLOCK)
-
-def _pa_init():
-    global pa
-    if pa is None:
-        pa = PyAudio()
-        atexit.register(_pa_terminate)
-
-
-def _pa_terminate():
-    global pa
-    if pa:
-        pa.terminate()
-        pa = None
-
-
-def terminate():
-    if pa is not None:
-        pa.terminate()
 
 
 def add_blocks(blocks):
@@ -114,25 +81,22 @@ def save(filename, blocks):
             outfile.writeframes(block)
 
 
-class AudioDevice:
-    def __init__(self, callback=None):
-        _pa_init()
+class Stream:
+    def __init__(self, callback):
+        def callback_wrapper(inblock, outblock, *_):
+            outblock[:] = callback(inblock)
 
-        def callback_wrapper(inblock, frame_count, time_info, status):
-            return (callback(inblock), pyaudio.paContinue)
+        self.stream = sounddevice.RawStream(
+            channels=2,
+            dtype='int16',
+            blocksize=FRAMES_PER_BLOCK,
+            callback=callback_wrapper)
 
-        self.stream = pa.open(input=True,
-                              output=True,
-                              stream_callback=callback_wrapper,
-                              **PA_AUDIO_FORMAT)
-
-        self.latency = self.stream.get_input_latency() \
-                       + self.stream.get_output_latency()
+        self.latency = sum(self.stream.latency)
         self.play_ahead = int(round(self.latency * BLOCKS_PER_SECOND))
-        self.closed = False
 
-    def close(self):
-        if not self.closed:
-            self.stream.close()
-            self.closed = True
+    def start(self):
+        self.stream.start()
 
+    def stop(self):
+        self.stream.stop()

@@ -15,7 +15,7 @@ from overdub.gamepad import Gamepad
 
 
 def get_font(size):
-    return tkinter.font.Font(family="Courier", size=size)
+    return tkinter.font.Font(family='Courier', size=size)
 
 
 def format_time(seconds):
@@ -47,24 +47,17 @@ class GUI:
         self.statusbar = StringVar()
         label = Label(textvariable=self.statusbar)
         label['font'] = get_font(size=30)
+        label['foreground'] = 'white'
         label.pack(side=TOP,padx=10,pady=10)
+        self.statusbar_label = label
 
         label = Label(text=self.filename)
         label['font'] = get_font(size=15)
+        label['foreground'] = 'white'
         label.pack(side=TOP,padx=10,pady=10)
+        self.filename_label = label
 
         self.root.attributes("-fullscreen", True)
-
-        if False:
-            for (text, command) in [
-                    ('Record', self.deck.record),
-                    ('Play', self.deck.play),
-                    ('Stop', self.deck.stop),
-                    ('Undo', self.deck.undo),
-            ]:
-                button = Button(root, text=text, command=command)
-                button['font'] = get_font(size=30)
-                button.pack(side=LEFT)
 
         self.root.bind('<KeyPress-Return>', lambda _: self.deck.toggle_record())
         self.root.bind('<KeyPress-space>', lambda _: self.deck.toggle_play())
@@ -141,10 +134,12 @@ class GUI:
         self.deck.skip(self.gamepad_skipdist)
         self.update_display()
 
-        bg = {'recording': 'red',
-              'playing': 'green',
-              'stopped': 'black'}[self.deck.mode]
-        self.root.configure(background=bg)
+        background = {'recording': '#a00',  # Red
+                      'playing': '#050',  # Green
+                      'stopped': 'black'}[self.deck.mode]
+
+        for widget in [self.root, self.statusbar_label, self.filename_label]:
+            widget['background'] = background
 
         self.root.after(50, self.update)
 
@@ -168,7 +163,7 @@ class GUI:
         if flags:
             flags = ' ' + flags
 
-        meter = '#' * int(self.deck.meter * 20)
+        meter = '|' * int(self.deck.meter * 20)
         meter = '[{}]'.format(meter.ljust(20))
 
         text = '{} / {} {}{} {}'.format(format_time(self.deck.time),

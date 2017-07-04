@@ -182,6 +182,15 @@ class GUI:
                                         flags,
                                         meter)
 
+        # Screenshot text.
+        if False:
+            text = {
+                'stopped': '0:00.00 / 3:42.37 stopped [||                  ]',
+                'playing': '0:20.85 / 3:42.37 playing [|||                 ]',
+                'recording':
+                '0:11.37 / 3:42.37 recording * [||||||||            ]',
+            }[self.deck.mode]
+
         self.statusbar.set(text)
 
     def quit(self):

@@ -104,7 +104,7 @@ class GUI:
                 value = event['value']
 
                 # Sometimes the gamepad doesn't go all the way back to 0.0.
-                if abs(value) < 0.01:
+                if abs(value) < 0.05:
                     value = 0
 
                 if value >= 0:

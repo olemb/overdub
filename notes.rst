@@ -1,7 +1,6 @@
 Todo:
 
 * add solo button (button 10).
-* test sounddevice package.
 * replace some literals in joystick.py with constants.
 * show time as MM:SS.DD
 * change joystick event format? (type, code (instead of number), value)

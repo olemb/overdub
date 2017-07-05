@@ -33,6 +33,7 @@ class GUI:
         self.deck = deck
         self.filename = filename
         self.fullscreen = fullscreen
+        self.fast_winding = False
 
         self.gamepad = Gamepad(optional=True)
 
@@ -114,13 +115,6 @@ class GUI:
                     if abs(value) < 0.05:
                         value = 0
 
-                    if value >= 0:
-                        sign = 1
-                    else:
-                        sign = -1
-
-                    value = (abs(value) ** 4) * 4 * sign
-
                     self.gamepad_skipdist = value
                     self.deck.scrub = bool(value)
 
@@ -141,8 +135,11 @@ class GUI:
                 # Add 1 because buttons are numbered 1-10 on the gamepad.
                 button = event['code'] + 1
 
-                if button == 10:
+                if button == 9:
                     self.deck.solo = bool(event['value'])
+
+                elif button == 10:
+                    self.fast_winding = bool(event['value'])
 
                 elif event['value'] is True:
                     if button == 1:
@@ -162,7 +159,13 @@ class GUI:
         # self.window.update()
         self.handle_gamepad()
         self.deck.skip(self.skipdist)
-        self.deck.skip(self.gamepad_skipdist)
+
+        if self.fast_winding:
+            scale = 5
+        else:
+            scale = 1
+        self.deck.skip(self.gamepad_skipdist * scale)
+
         self.update_display()
 
         background = {'recording': '#a00',  # Red
@@ -190,6 +193,9 @@ class GUI:
 
         if self.deck.solo:
             flags += 's'
+            
+        if self.fast_winding:
+            flags += 'f'
 
         if flags:
             flags = ' ' + flags

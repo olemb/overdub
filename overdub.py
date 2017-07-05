@@ -102,24 +102,41 @@ class GUI:
 
     def handle_gamepad(self):
         for event in self.gamepad.events:
+            if event['init']:
+                continue
+
+            if event['type'] == 'axis':
+                if event['code'] == 2:
+                    # Right joystick left/right for winding and scrubbing.
+                    value = event['value']
+
+                    # Sometimes the gamepad doesn't go all the way back to 0.0.
+                    if abs(value) < 0.05:
+                        value = 0
+
+                    if value >= 0:
+                        sign = 1
+                    else:
+                        sign = -1
+
+                    value = (abs(value) ** 4) * 4 * sign
+
+                    self.gamepad_skipdist = value
+                    self.deck.scrub = bool(value)
+
+                elif event['code'] == 3:
+                    # Right joystick, pull back for stop push away for play.
+                    value = event['value']
+
+                    if abs(value) >= 0.7:
+                        if value < 0:
+                            self.deck.play()
+                        else:
+                            self.deck.stop()
+
             # Right gamepad.
             if (event['type'], event['code']) == ('axis', 2):
                 value = event['value']
-
-                # Sometimes the gamepad doesn't go all the way back to 0.0.
-                if abs(value) < 0.05:
-                    value = 0
-
-                if value >= 0:
-                    sign = 1
-                else:
-                    sign = -1
-
-                value = (abs(value) ** 4) * 4 * sign
-                
-                self.gamepad_skipdist = value
-                self.deck.scrub = bool(value)
-
             elif event['type'] == 'button':
                 # Add 1 because buttons are numbered 1-10 on the gamepad.
                 button = event['code'] + 1
@@ -136,6 +153,12 @@ class GUI:
                         self.deck.play()
                     elif button == 4:
                         self.deck.undo()
+
+                    elif button == 12:
+                        # Push right joystick.
+                        self.deck.record()
+
+                print(button)
 
     def update(self):
         # self.window.update()

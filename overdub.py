@@ -158,8 +158,6 @@ class GUI:
                         # Push right joystick.
                         self.deck.record()
 
-                print(button)
-
     def update(self):
         # self.window.update()
         self.handle_gamepad()

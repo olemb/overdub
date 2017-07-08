@@ -82,7 +82,7 @@ class Deck:
 
     @property
     def time(self):
-        return self.pos * audio.SECONDS_PER_BLOCK
+        return audio.block2sec(self.pos)
 
     @time.setter
     def time(self, time):
@@ -90,14 +90,14 @@ class Deck:
         if time is None:
             return
 
-        self.pos = int(round(time * audio.BLOCKS_PER_SECOND))
+        self.pos = audio.sec2block(time)
 
         if self.pos < 0:
             self.pos = 0
 
     @property
     def end(self):
-        return len(self.blocks) * audio.SECONDS_PER_BLOCK
+        return audio.block2sec(len(self.blocks))
  
     def skip(self, time):
         if time == 0:

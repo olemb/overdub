@@ -49,7 +49,7 @@ def block2sec(numblocks):
 
 
 def sec2block(numsecs):
-    return round(numsecs * BLOCKS_PER_SECOND)
+    return int(round(numsecs * BLOCKS_PER_SECOND))
 
 
 def load(filename):

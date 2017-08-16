@@ -118,15 +118,15 @@ class GUI:
                     self.gamepad_skipdist = value
                     self.deck.scrub = bool(value)
 
-                elif event['code'] == 3:
-                    # Right joystick, pull back for stop push away for play.
-                    value = event['value']
-
-                    if abs(value) >= 0.7:
-                        if value < 0:
-                            self.deck.play()
-                        else:
-                            self.deck.stop()
+                # elif event['code'] == 3:
+                #     # Right joystick, pull back for stop push away for play.
+                #     value = event['value']
+                #
+                #     if abs(value) >= 0.7:
+                #          if value < 0:
+                #            self.deck.play()
+                #         else:
+                #             self.deck.stop()
 
             # Right gamepad.
             if (event['type'], event['code']) == ('axis', 2):
@@ -241,8 +241,11 @@ def main():
         gui.mainloop()
     finally:
         deck.close()
-        print('\nSaving to {}\n'.format(expanded_filename))
-        audio.save(expanded_filename, gui.deck.blocks)
+        if len(deck.blocks) > 0:
+            print('\nSaving to {}\n'.format(expanded_filename))
+            audio.save(expanded_filename, gui.deck.blocks)
+        else:
+            print('\nNothing to save\n')
 
 
 if __name__ == '__main__':

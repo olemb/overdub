@@ -37,7 +37,7 @@ def add_blocks(blocks):
 
 def get_max_value(block):
     """Return maximum absolute sample value in block.
-    
+
     The value is normalized to 0..1.
     """
     max_sample = 32768

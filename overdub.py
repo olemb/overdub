@@ -3,29 +3,18 @@
 http://www.ittc.ku.edu/~niehaus/classes/448-s04/448-standard/simple_gui_examples/index.html
 http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm
 """
-import os
 import sys
-import time
 import tkinter as tk
 import tkinter.font
 from overdub import audio
 from overdub.deck import Deck
+from overdub.status_line import make_status_line
+from overdub.filenames import make_output_filename
 from overdub.gamepad import Gamepad
 
 
 def get_font(size):
     return tkinter.font.Font(family='Courier', size=size)
-
-
-def format_time(seconds):
-    minutes, seconds = divmod(seconds, 60)
-    seconds, dec = divmod(seconds, 1)
-
-    minutes = int(minutes)
-    seconds = int(seconds)
-    dec = int(dec * 100)
-
-    return '{:d}:{:02d}:{:02d}'.format(minutes, seconds, dec)
 
 
 class GUI:
@@ -52,7 +41,7 @@ class GUI:
         label.pack(side=tk.TOP, padx=10, pady=10)
         self.statusbar_label = label
 
-        label = tk.Label(text=self.filename)
+        label = tk.Label(text='')
         label['font'] = get_font(size=15)
         label['foreground'] = 'white'
         label.pack(side=tk.TOP, padx=10, pady=10)
@@ -72,7 +61,7 @@ class GUI:
 
         def skip_less(_):
             self.skipdist -= 1
-            
+
         def skip_more(_):
             self.skipdist += 1
 
@@ -156,7 +145,6 @@ class GUI:
                         self.deck.record()
 
     def update(self):
-        # self.window.update()
         self.handle_gamepad()
         self.deck.skip(self.skipdist)
 
@@ -167,6 +155,15 @@ class GUI:
         self.deck.skip(self.gamepad_skipdist * scale)
 
         self.update_display()
+        self.window.after(50, self.update)
+
+    def update_display(self):
+        # if self.deck.time < 1:
+        #     text = '.'
+        # else:
+        #     text = ''
+        # self.statusbar.set(text)
+        self.statusbar.set(make_status_line(self.deck))
 
         background = {'recording': '#a00',  # Red
                       'playing': '#050',  # Green
@@ -174,8 +171,6 @@ class GUI:
 
         for widget in [self.window, self.statusbar_label, self.filename_label]:
             widget['background'] = background
-
-        self.window.after(50, self.update)
 
     def mainloop(self):
         try:
@@ -185,49 +180,13 @@ class GUI:
         finally:
             pass
 
-    def update_display(self):
-        flags = ''
-
-        if self.deck.undo_blocks is not None:
-            flags += '*'
-
-        if self.deck.solo:
-            flags += 's'
-            
-        if self.fast_winding:
-            flags += 'f'
-
-        if flags:
-            flags = ' ' + flags
-
-        meter = '|' * int(self.deck.meter * 20)
-        meter = '[{}]'.format(meter.ljust(20))
-
-        text = '{} / {} {}{} {}'.format(format_time(self.deck.time),
-                                        format_time(self.deck.end),
-                                        self.deck.mode,
-                                        flags,
-                                        meter)
-
-        # Screenshot text.
-        if False:
-            text = {
-                'stopped': '0:00:00 / 3:42:37 stopped [||                  ]',
-                'playing': '0:20:85 / 3:42:37 playing [|||                 ]',
-                'recording':
-                '0:11:37 / 3:42:37 recording * [||||||||            ]',
-            }[self.deck.mode]
-
-        self.statusbar.set(text)
-
     def quit(self):
         self.window.quit()
         self.window.destroy()
 
 
 def main():
-    filename = '~/Desktop/overdub-out.wav'
-    expanded_filename = os.path.expanduser(filename)
+    filename = make_output_filename()
 
     if sys.argv[1:]:
         blocks = audio.load(sys.argv[1])
@@ -242,8 +201,8 @@ def main():
     finally:
         deck.close()
         if len(deck.blocks) > 0:
-            print('\nSaving to {}\n'.format(expanded_filename))
-            audio.save(expanded_filename, gui.deck.blocks)
+            print('\nSaving to {}\n'.format(filename))
+            audio.save(filename, gui.deck.blocks)
         else:
             print('\nNothing to save\n')
 

@@ -1,6 +1,7 @@
 import threading
 from . import audio
 
+
 def play_block(blocks, pos):
     if 0 <= pos < len(blocks):
         return blocks[pos]
@@ -98,7 +99,7 @@ class Deck:
     @property
     def end(self):
         return audio.block2sec(len(self.blocks))
- 
+
     def skip(self, time):
         if time == 0:
             return
@@ -155,5 +156,5 @@ class Deck:
             self.update_meter(inblock)
         else:
             self.update_meter(audio.add_blocks([inblock, outblock]))
-        
+
         return outblock

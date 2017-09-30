@@ -47,7 +47,7 @@ class Gamepad:
         self.path = '/dev/input/js{}'.format(number)
         self._queue = queue.Queue()
         self._callback = callback
-        
+
         try:
             self._file = open(self.path, 'rb')
             self.found = True

@@ -87,11 +87,6 @@ def color_text(text, color):
 
 
 def make_status_line(deck):
-    if deck.undo_blocks is not None:
-        flags = '*'
-    else:
-        flags = ''
-
     # This produces some broken characters around the colored text.
     # if deck.mode == 'recording':
     #     mode = color_text('recording', 'red')
@@ -101,7 +96,7 @@ def make_status_line(deck):
     #     mode = deck.mode
     mode = deck.mode
 
-    if deck.undo_blocks is not None:
+    if deck.can_undo:
         changed = '*'
     else:
         changed = ' '

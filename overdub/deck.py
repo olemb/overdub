@@ -100,6 +100,10 @@ class Deck:
     def end(self):
         return audio.block2sec(len(self.blocks))
 
+    @property
+    def can_undo(self):
+        return self.undo_blocks is not None
+
     def skip(self, time):
         if time == 0:
             return
@@ -121,10 +125,11 @@ class Deck:
         # Make sure we're not recording anymore.
         self._sync()
 
-        if self.undo_blocks is None:
-            return False
-        else:
+        if self.can_undo:
             self.blocks, self.undo_blocks = self.undo_blocks, None
+            return True
+        else:
+            return False
 
     def update_meter(self, block):
         # Todo: scale value by sample rate / block size.

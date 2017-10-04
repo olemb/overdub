@@ -12,7 +12,7 @@ def format_time(seconds):
 def make_status_line(deck):
     flags = ''
 
-    if deck.undo_blocks is not None:
+    if deck.can_undo:
         flags += '*'
 
     if deck.solo:

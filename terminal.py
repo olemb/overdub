@@ -10,6 +10,14 @@ from overdub.deck import Deck
 from overdub.filenames import make_output_filename
 
 
+def hide_cursor():
+    print('\033[?25l', end='', flush=True)
+
+
+def show_cursor():
+    print('\033[?25h', end='', flush=True)
+
+
 @contextmanager
 def term():
     fd = sys.stdin.fileno()
@@ -21,9 +29,12 @@ def term():
     oldflags = fcntl.fcntl(fd, fcntl.F_GETFL)
     fcntl.fcntl(fd, fcntl.F_SETFL, oldflags | os.O_NONBLOCK)
 
+    hide_cursor()
+
     try:
         yield
     finally:
+        show_cursor()
         termios.tcsetattr(fd, termios.TCSAFLUSH, oldterm)
         fcntl.fcntl(fd, fcntl.F_SETFL, oldflags)
 
@@ -90,7 +101,25 @@ def make_status_line(deck):
     #     mode = deck.mode
     mode = deck.mode
 
-    return ' {}  {:.2f}  {}'.format(mode, deck.time, flags)
+    if deck.undo_blocks is not None:
+        changed = '*'
+    else:
+        changed = ' '
+
+    if deck.time < 0.1:
+        dot = '.'
+    else:
+        dot = ' '
+
+    # https://en.wikipedia.org/wiki/Media_controls
+    if mode == 'recording':
+        mode = 'O'
+    elif mode == 'playing':
+        mode = '>'
+    elif mode == 'stopped':
+        mode = ' '
+
+    return ' {} {} {}'.format(changed, dot, mode)
 
 
 def main():

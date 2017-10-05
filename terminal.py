@@ -8,6 +8,7 @@ from contextlib import contextmanager
 from overdub import audio
 from overdub.deck import Deck
 from overdub.filenames import make_output_filename
+from overdub.status_line import make_status_line
 
 
 def hide_cursor():
@@ -86,7 +87,7 @@ def color_text(text, color):
     return '\001\033[' + colors[color] + 'm\002' + text + '\001\033[0m\002'
 
 
-def make_status_line(deck):
+def make_minimalist_status_line(deck):
     # This produces some broken characters around the colored text.
     # if deck.mode == 'recording':
     #     mode = color_text('recording', 'red')

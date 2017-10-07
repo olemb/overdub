@@ -158,11 +158,15 @@ class GUI:
 
     def update_display(self):
         if self.minimalist:
+            flags = []
+
+            if self.deck.can_undo:
+                flags.append('*')
+
             if self.deck.time < 1:
-                text = '.'
-            else:
-                text = ' '
-            self.statusbar.set(text)
+                flags.append('.')
+
+            self.statusbar.set(' '.join(flags))
         else:
             self.statusbar.set(make_status_line(self.deck))
 

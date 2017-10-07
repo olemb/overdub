@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import os
 import sys
 import time
@@ -118,11 +117,11 @@ def make_minimalist_status_line(deck):
     return ' {} {} {}'.format(changed, dot, mode)
 
 
-def main():
+def mainloop(args):
     deck = Deck()
 
-    if sys.argv[1:]:
-        deck.blocks = audio.load(sys.argv[1])
+    if args.infile is not None:
+        deck.blocks = audio.load(deck.infile)
 
     try:
         with term():
@@ -146,7 +145,10 @@ def main():
                     elif event == 'undo':
                         deck.undo()
 
-                update_line(make_status_line(deck))
+                if args.minimalist:
+                    update_line(make_minimalist_status_line(deck))
+                else:
+                    update_line(make_status_line(deck))
 
                 time.sleep(0.05)
 
@@ -160,6 +162,3 @@ def main():
         else:
             update_line('Nothing to save')
         print()
-
-
-main()

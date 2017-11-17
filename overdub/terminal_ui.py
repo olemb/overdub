@@ -5,7 +5,6 @@ import fcntl
 import termios
 from contextlib import contextmanager
 from overdub import audio
-from overdub.deck import Deck
 from overdub.filenames import make_output_filename
 from overdub.status_line import make_status_line
 
@@ -117,12 +116,7 @@ def make_minimalist_status_line(deck):
     return ' {} {} {}'.format(changed, dot, mode)
 
 
-def mainloop(args):
-    deck = Deck()
-
-    if args.infile is not None:
-        deck.blocks = audio.load(deck.infile)
-
+def mainloop(args, deck):
     try:
         with term():
             while True:

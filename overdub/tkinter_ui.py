@@ -5,7 +5,6 @@ http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm
 import tkinter as tk
 import tkinter.font
 from overdub import audio
-from overdub.deck import Deck
 from overdub.status_line import make_status_line
 from overdub.filenames import make_output_filename
 from overdub.gamepad import Gamepad
@@ -190,14 +189,8 @@ class GUI:
         self.window.destroy()
 
 
-def mainloop(args):
+def mainloop(args, deck):
     filename = make_output_filename()
-
-    deck = Deck()
-
-    if args.infile:
-        deck.blocks = audio.load(args.infile)
-
     gui = GUI(deck, filename, minimalist=args.minimalist)
 
     try:

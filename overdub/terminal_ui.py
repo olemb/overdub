@@ -138,6 +138,8 @@ def mainloop(args, deck):
                         deck.skip(-1)
                     elif event == 'undo':
                         deck.undo()
+                        if not deck.can_undo:
+                            deck.skip(-1)
 
                 if args.minimalist:
                     update_line(make_minimalist_status_line(deck))

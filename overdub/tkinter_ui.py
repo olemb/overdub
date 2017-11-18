@@ -190,7 +190,11 @@ class GUI:
 
 
 def mainloop(args, deck):
-    filename = make_output_filename()
+    if args.outfile:
+        filename = make_output_filename()
+    else:
+        filename = args.outfile
+
     gui = GUI(deck, filename, minimalist=args.minimalist)
 
     try:

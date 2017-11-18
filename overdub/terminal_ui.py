@@ -152,7 +152,11 @@ def mainloop(args, deck):
         pass
     finally:
         if len(deck.blocks) > 0:
-            filename = make_output_filename()
+            if args.outfile is None:
+                filename = make_output_filename()
+            else:
+                filename = args.outfile
+
             update_line('Saving {}'.format(filename))
             audio.save(filename, deck.blocks)
         else:

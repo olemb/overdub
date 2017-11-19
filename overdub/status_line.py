@@ -10,6 +10,9 @@ def format_time(seconds):
 
 
 def make_status_line(deck):
+    time = format_time(deck.time)
+    end = format_time(deck.end)
+
     flags = ''
 
     if deck.can_undo:
@@ -24,11 +27,7 @@ def make_status_line(deck):
     meter = '|' * int(deck.meter * 20)
     meter = '[{}]'.format(meter.ljust(20))
 
-    text = '{} / {} {}{} {}'.format(format_time(deck.time),
-                                    format_time(deck.end),
-                                    deck.mode,
-                                    flags,
-                                    meter)
+    text = '{time} / {end} {deck.mode}{flags} {meter}'.format(**locals())
 
     # Screenshot text.
     if False:

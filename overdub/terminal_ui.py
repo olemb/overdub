@@ -144,7 +144,7 @@ def mainloop(args, deck):
                 if args.minimalist:
                     update_line(make_minimalist_status_line(deck))
                 else:
-                    update_line(make_status_line(deck))
+                    update_line('  ' + make_status_line(deck))
 
                 time.sleep(0.05)
 

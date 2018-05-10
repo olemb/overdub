@@ -159,11 +159,11 @@ class GUI:
         if self.minimalist:
             flags = []
 
-            if self.deck.can_undo:
-                flags.append('*')
-
             if self.deck.time < 1:
                 flags.append('.')
+
+            if self.deck.can_undo:
+                flags.append('+')
 
             self.statusbar.set(' '.join(flags))
         else:

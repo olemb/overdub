@@ -95,15 +95,15 @@ def make_minimalist_status_line(deck):
     #     mode = deck.mode
     mode = deck.mode
 
-    if deck.can_undo:
-        changed = '*'
-    else:
-        changed = ' '
-
     if deck.time < 0.1:
         dot = '.'
     else:
         dot = ' '
+
+    if deck.can_undo:
+        changed = '+'
+    else:
+        changed = ' '
 
     # https://en.wikipedia.org/wiki/Media_controls
     if mode == 'recording':

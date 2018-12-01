@@ -87,10 +87,13 @@ class Stream:
             outblock[:] = callback(inblock)
 
         self.stream = sounddevice.RawStream(
+            samplerate=FRAME_RATE,
             channels=2,
             dtype='int16',
             blocksize=FRAMES_PER_BLOCK,
-            callback=callback_wrapper)
+            callback=callback_wrapper,
+            # device=[6, 6]
+        )
 
         self.latency = sum(self.stream.latency)
         self.play_ahead = int(round(self.latency * BLOCKS_PER_SECOND))

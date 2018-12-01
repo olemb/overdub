@@ -84,7 +84,7 @@ def save(filename, blocks):
 class Stream:
     def __init__(self, callback):
         def callback_wrapper(inblock, outblock, *_):
-            outblock[:] = callback(inblock)
+            outblock[:] = callback(bytes(inblock))
 
         self.stream = sounddevice.RawStream(
             samplerate=FRAME_RATE,

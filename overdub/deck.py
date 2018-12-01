@@ -139,10 +139,6 @@ class Deck:
         self.meter = max(self.meter - 0.04, audio.get_max_value(block))
 
     def _audio_callback(self, inblock):
-        # What we get from sounddevice is a _cffi_backend.buffer object.
-        # Since this buffer is reused we need to make a copy.
-        inblock = bytes(inblock)
-
         self._sync_event.set()
 
         outblock = audio.SILENCE

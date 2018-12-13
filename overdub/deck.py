@@ -141,12 +141,12 @@ class Deck:
     def _audio_callback(self, inblock):
         self._sync_event.set()
 
-        outblock = audio.SILENCE
-
         if (self.mode != 'stopped' or self.scrub) and not self.solo:
             block = play_block(self.blocks, self.pos)
             backing = play_block(self.backing_track, self.pos)
-            outblock = audio.add_blocks([outblock, block, backing])
+            outblock = audio.add_blocks([block, backing])
+        else:
+            outblock = audio.SILENCE
 
         # We need to record after playing back in case the block is
         # recorded at the same position as playback.

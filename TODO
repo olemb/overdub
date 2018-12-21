@@ -1,0 +1,5 @@
+add load() and save() to deck.
+snapshot (and other save file names) should be unique
+
+sys.stdout.write('\033[?25l')
+sys.stdout.write('\033[?25h')

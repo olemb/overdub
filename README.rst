@@ -35,8 +35,6 @@ Requirements
 * runs on Linux or macOS. (Should run on Windows as well but I haven't
   testet it there.)
 
-Overdub works on Linux and macOS.
-
 
 Display
 -------

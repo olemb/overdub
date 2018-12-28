@@ -1,6 +1,9 @@
 Overdub - Simple Multilayered Music Recording
 =============================================
 
+.. note:: This is a historical branch that has and undo feature which allows you to undo the last recorded layer.
+
+
 .. image:: screenshots/playing.png
 
 Overdub allows you to record into an audio buffer with unlimited

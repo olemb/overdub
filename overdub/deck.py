@@ -37,9 +37,6 @@ class Deck:
         else:
             self.blocks = blocks
 
-        self.undo_blocks = None
-        self.backing_track = None
-
         self._sync_event = threading.Event()
         self._stream = audio.Stream(self._audio_callback)
         self._stream.start()
@@ -62,7 +59,6 @@ class Deck:
             self.mode = 'playing'
         self._sync()
 
-        self.undo_blocks = self.blocks.copy()
         self.time = time
         self.mode = 'recording'
         self._sync()
@@ -103,10 +99,6 @@ class Deck:
     def end(self):
         return audio.block2sec(len(self.blocks))
 
-    @property
-    def can_undo(self):
-        return self.undo_blocks is not None
-
     def skip(self, time):
         if time == 0:
             return
@@ -115,24 +107,6 @@ class Deck:
             self.mode = 'playing'
 
         self.time += time
-
-    def undo(self):
-        """Restores from undo buffer.
-
-        Returns True if restore was done or False if the undo buffer
-        was empty.
-        """
-        if self.mode == 'recording':
-            self.mode = 'playing'
-
-        # Make sure we're not recording anymore.
-        self._sync()
-
-        if self.can_undo:
-            self.blocks, self.undo_blocks = self.undo_blocks, None
-            return True
-        else:
-            return False
 
     def update_meter(self, block):
         # Todo: scale value by sample rate / block size.

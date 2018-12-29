@@ -2,7 +2,7 @@ Overdub - Simple Multilayered Music Recording
 =============================================
 
 Overdub is a very simple Python program that allows you to do
-unlimited overdubs into and audio buffer.
+unlimited overdubs into an audio buffer.
 
 Conceptually it's like having a tape recorder without an erase head
 except the tape is digital.

@@ -38,11 +38,10 @@ class Deck:
             self.blocks = blocks
 
         self._sync_event = threading.Event()
-        self._stream = audio.Stream(self._audio_callback)
-        self._stream.start()
+        self._callback_info = audio.set_callback(self._audio_callback)
 
     def close(self):
-        self._stream.stop()
+        audio.cancel_callback(self._callback_info)
 
     def _sync(self):
         # Todo: timeout.

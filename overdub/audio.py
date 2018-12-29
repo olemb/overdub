@@ -1,21 +1,21 @@
 import wave
 import audioop
+from dataclasses import dataclass
 import sounddevice
 
-FRAME_RATE = 44100
-SAMPLE_WIDTH = 2
-NUM_CHANNELS = 2
-FRAME_SIZE = SAMPLE_WIDTH * NUM_CHANNELS
 
-FRAMES_PER_BLOCK = 1024
-BYTES_PER_BLOCK = FRAMES_PER_BLOCK * FRAME_SIZE
+frame_rate = 44100
+frame_size = 4
+sample_size = 2
 
-SILENCE = b'\x00' * BYTES_PER_BLOCK
+frames_per_block = 1024
+bytes_per_block = frame_per_block * frame_size
+bytes_per_second = frame_rate * frame_size
+seconds_per_byte = 1 / bytes_per_second
+seconds_per_block = bytes_per_block * seconds_per_block
+blocks_per_second = 1 / seconds_per_block
 
-BYTES_PER_SECOND = FRAME_RATE * FRAME_SIZE
-SECONDS_PER_BYTE = 1 / BYTES_PER_SECOND
-SECONDS_PER_BLOCK = BYTES_PER_BLOCK * SECONDS_PER_BYTE
-BLOCKS_PER_SECOND = 1 / SECONDS_PER_BLOCK
+silence = b'\x00' * bytes_per_block
 
 
 def add_blocks(blocks):
@@ -26,11 +26,11 @@ def add_blocks(blocks):
 
     Treats None values as silent blocks.
     """
-    blocksum = SILENCE
+    blocksum = silence
 
     for block in blocks:
         if block:
-            blocksum = audioop.add(blocksum, block, SAMPLE_WIDTH)
+            blocksum = audioop.add(blocksum, block, sample_size)
 
     return blocksum
 
@@ -41,65 +41,80 @@ def get_max_value(block):
     The value is normalized to 0..1.
     """
     max_sample = 32768
-    return audioop.max(block, SAMPLE_WIDTH) / max_sample
+    return audioop.max(block, sample_size) / max_sample
 
 
 def block2sec(numblocks):
-    return numblocks * SECONDS_PER_BLOCK
+    return numblocks * seconds_per_block
 
 
 def sec2block(numsecs):
-    return int(round(numsecs * BLOCKS_PER_SECOND))
+    return int(round(numsecs * blocks_per_second))
 
 
-def load(filename):
+def read_file(filename):
     """Read WAV file and return all data as a list of blocks."""
     blocks = []
 
     with wave.open(filename, 'r') as infile:
 
         while True:
-            block = infile.readframes(FRAMES_PER_BLOCK)
+            block = infile.readframes(frames_per_block)
             if len(block) == 0:
                 break
-            elif len(block) < BYTES_PER_BLOCK:
-                block += SILENCE[len(block):]
+            elif len(block) < bytes_per_block:
+                block += silence[len(block):]
 
             blocks.append(block)
 
     return blocks
 
 
-def save(filename, blocks):
+def write_file(filename, blocks):
     """Write a list of blocks to a WAV file."""
     with wave.open(filename, 'w') as outfile:
-        outfile.setnchannels(NUM_CHANNELS)
-        outfile.setsampwidth(SAMPLE_WIDTH)
-        outfile.setframerate(FRAME_RATE)
+        outfile.setnchannels(2)
+        outfile.setsampwidth(sample_size)
+        outfile.setframerate(frame_rate)
 
         for block in blocks:
             outfile.writeframes(block)
 
 
-class Stream:
-    def __init__(self, callback):
-        def callback_wrapper(inblock, outblock, *_):
-            outblock[:] = callback(bytes(inblock))
+def stream_to_file(filename):
+    outfile = wave.open(filename, 'w')
+    outfile.setnchannels(2)
+    outfile.setsampwidth(sample_size)
+    outfile.setframerate(frame_rate)
 
-        self.stream = sounddevice.RawStream(
+    def write(data):
+        if data == b'':
+            outfile.close()
+        else:
+            outfile.write(data)
+
+    return write
+
+
+@dataclass
+class CallackInfo:
+    stream: sounddevice.RawStream
+
+
+def set_callback(func):
+    def callback_wrapper(inblock, outblock, *_):
+        outblock[:] = func(bytes(inblock))
+        
+    info = CallbackInfo(
+        stream=sounddevice.RawStream(
             samplerate=FRAME_RATE,
             channels=2,
             dtype='int16',
-            blocksize=FRAMES_PER_BLOCK,
-            callback=callback_wrapper,
-            # device=[6, 6]
-        )
+            blocksize=frames_per_block,
+            callback=callback_wrapper))
+    info.stream.start()
+    return info
 
-        self.latency = sum(self.stream.latency)
-        self.play_ahead = int(round(self.latency * BLOCKS_PER_SECOND))
 
-    def start(self):
-        self.stream.start()
-
-    def stop(self):
-        self.stream.stop()
+def clear_callback(callback_info):
+    callback_info.stream.stop()

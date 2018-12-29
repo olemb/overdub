@@ -97,24 +97,29 @@ def stream_to_file(filename):
 
 
 @dataclass
-class CallackInfo:
+class StreamInfo:
     stream: sounddevice.RawStream
+    latency: int
+    play_ahead: int
 
 
 def set_callback(func):
     def callback_wrapper(inblock, outblock, *_):
         outblock[:] = func(bytes(inblock))
         
-    info = CallbackInfo(
-        stream=sounddevice.RawStream(
-            samplerate=FRAME_RATE,
-            channels=2,
-            dtype='int16',
-            blocksize=frames_per_block,
-            callback=callback_wrapper))
-    info.stream.start()
-    return info
+
+    stream = sounddevice.RawStream(
+        samplerate=frame_rate,
+        channels=2,
+        dtype='int16',
+        blocksize=frames_per_block,
+        callback=callback_wrapper)
+    stream.start()
+
+    return StreamInfo(stream,
+                      latency=sum(self.stream.latency),
+                      play_ahead=int(round(self.latency * blocks_per_second)))
 
 
-def clear_callback(callback_info):
-    callback_info.stream.stop()
+def clear_callback(stream_info):
+    stream_info.stream.stop()

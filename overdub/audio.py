@@ -81,21 +81,6 @@ def save(filename, blocks):
             outfile.writeframes(block)
 
 
-def stream_to_file(filename):
-    outfile = wave.open(filename, 'w')
-    outfile.setnchannels(2)
-    outfile.setsampwidth(sample_size)
-    outfile.setframerate(frame_rate)
-
-    def write(data):
-        if data == b'':
-            outfile.close()
-        else:
-            outfile.write(data)
-
-    return write
-
-
 @dataclass
 class StreamInfo:
     stream: sounddevice.RawStream

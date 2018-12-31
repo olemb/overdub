@@ -1,2 +1,5 @@
+When you don't specify a filename it should make sure to give you a
+new filename, not open overdub-out.wav from last time.
+
 sys.stdout.write('\033[?25l')
 sys.stdout.write('\033[?25h')

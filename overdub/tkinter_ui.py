@@ -6,7 +6,6 @@ import tkinter as tk
 import tkinter.font
 from overdub import audio
 from overdub.status_line import make_status_line
-from overdub.filenames import make_output_filename
 from overdub.gamepad import Gamepad
 
 
@@ -183,20 +182,15 @@ class GUI:
         self.window.destroy()
 
 
-def mainloop(args, deck):
-    if args.outfile:
-        filename = args.outfile
-    else:
-        filename = make_output_filename()
-
-    gui = GUI(deck, filename, minimalist=args.minimalist)
+def mainloop(deck, args):
+    gui = GUI(deck, args.filename, minimalist=args.minimalist)
 
     try:
         gui.mainloop()
     finally:
         deck.close()
         if len(deck.blocks) > 0:
-            print('\nSaving to {}\n'.format(filename))
-            audio.save(filename, gui.deck.blocks)
+            print(f'\nSaving to {args.filename}\n')
+            audio.save(args.filename, gui.deck.blocks)
         else:
             print('\nNothing to save\n')

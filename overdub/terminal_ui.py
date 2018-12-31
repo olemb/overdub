@@ -5,7 +5,6 @@ import fcntl
 import termios
 from contextlib import contextmanager
 from overdub import audio
-from overdub.filenames import make_output_filename
 from overdub.status_line import make_status_line
 
 
@@ -109,7 +108,10 @@ def make_minimalist_status_line(deck):
     return f' {dot} {mode}'
 
 
-def mainloop(args, deck):
+def mainloop(deck, args):
+    if os.path.exists(args.filename):
+        deck.blocks = audio.load(args.filename)
+
     try:
         with term():
             while True:
@@ -117,10 +119,9 @@ def mainloop(args, deck):
                     if event == 'quit':
                         return
                     elif event == 'snapshot':
-                        filename = make_output_filename(prefix='snapshot')
-                        update_line(f'Saving {filename}')
+                        update_line(f'Saving {args.filename}')
                         print()
-                        audio.save(filename, deck.blocks)
+                        audio.save(args.filename, deck.blocks)
                     elif event == 'toggle_play':
                         deck.toggle_play()
                     elif event == 'toggle_record':
@@ -141,13 +142,8 @@ def mainloop(args, deck):
         pass
     finally:
         if len(deck.blocks) > 0:
-            if args.outfile is None:
-                filename = make_output_filename()
-            else:
-                filename = args.outfile
-
-            update_line(f'Saving {filename}')
-            audio.save(filename, deck.blocks)
+            update_line(f'Saving {args.filename}')
+            audio.save(args.filename, deck.blocks)
         else:
             update_line('Nothing to save')
         print()

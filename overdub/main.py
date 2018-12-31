@@ -1,6 +1,10 @@
+import os
 import argparse
 from overdub.deck import audio
 from overdub.deck import Deck
+
+
+default_filename = os.path.expanduser(f'~/Desktop/overdub-out.wav')
 
 
 def parse_args():
@@ -9,9 +13,7 @@ def parse_args():
 
     arg('--terminal', '-t', action='store_true', help='run in terminal')
     arg('--minimalist', '-m', action='store_true', help='use minimalst UI')
-    arg('--output-file', '-o', dest='outfile', default=None,
-        help='output filename')
-    arg('infile', nargs='?')
+    arg('filename', nargs='?', default=default_filename)
 
     return parser.parse_args()
 
@@ -20,12 +22,9 @@ def main():
     args = parse_args()
     deck = Deck()
 
-    if args.infile is not None:
-        deck.blocks = audio.load(args.infile)
-    
     if args.terminal:
         from .terminal_ui import mainloop
     else:
         from .tkinter_ui import mainloop
 
-    mainloop(args, deck)
+    mainloop(deck, args)

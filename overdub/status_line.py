@@ -4,9 +4,9 @@ def format_time(seconds):
 
     minutes = int(minutes)
     seconds = int(seconds)
-    dec = int(dec * 100)
+    decimals = int(dec * 100)
 
-    return '{:d}:{:02d}:{:02d}'.format(minutes, seconds, dec)
+    return f'{minutes:d}:{seconds:02d}:{decimals:02d}'
 
 
 def make_status_line(deck):
@@ -24,7 +24,7 @@ def make_status_line(deck):
     meter = '|' * int(deck.meter * 20)
     meter = '[{}]'.format(meter.ljust(20))
 
-    text = '{time} / {end} {deck.mode}{flags} {meter}'.format(**locals())
+    text = f'{time} / {end} {deck.mode}{flags} {meter}'
 
     # Screenshot text.
     if False:

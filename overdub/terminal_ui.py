@@ -47,8 +47,6 @@ def get_event():
             return 'wind'
         elif code == '[D':
             return 'rewind'
-    elif char == '\x7f':
-        return 'undo'
     elif char == 'q':
         return 'quit'
     elif char == 's':
@@ -100,11 +98,6 @@ def make_minimalist_status_line(deck):
     else:
         dot = ' '
 
-    if deck.can_undo:
-        changed = '+'
-    else:
-        changed = ' '
-
     # https://en.wikipedia.org/wiki/Media_controls
     if mode == 'recording':
         mode = 'O'
@@ -113,7 +106,7 @@ def make_minimalist_status_line(deck):
     elif mode == 'stopped':
         mode = ' '
 
-    return ' {} {} {}'.format(changed, dot, mode)
+    return f' {dot} {mode}'
 
 
 def mainloop(args, deck):
@@ -125,7 +118,7 @@ def mainloop(args, deck):
                         return
                     elif event == 'snapshot':
                         filename = make_output_filename(prefix='snapshot')
-                        update_line('Saving {}'.format(filename))
+                        update_line(f'Saving {filename}')
                         print()
                         audio.save(filename, deck.blocks)
                     elif event == 'toggle_play':
@@ -136,10 +129,6 @@ def mainloop(args, deck):
                         deck.skip(1)
                     elif event == 'rewind':
                         deck.skip(-1)
-                    elif event == 'undo':
-                        deck.undo()
-                        if not deck.can_undo:
-                            deck.skip(-1)
 
                 if args.minimalist:
                     update_line(make_minimalist_status_line(deck))
@@ -157,7 +146,7 @@ def mainloop(args, deck):
             else:
                 filename = args.outfile
 
-            update_line('Saving {}'.format(filename))
+            update_line(f'Saving {filename}')
             audio.save(filename, deck.blocks)
         else:
             update_line('Nothing to save')

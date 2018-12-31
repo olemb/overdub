@@ -7,4 +7,4 @@ def make_output_filename(prefix=None):
     else:
         prefix = ''
 
-    return os.path.expanduser('~/Desktop/overdub-{}out.wav'.format(prefix))
+    return os.path.expanduser(f'~/Desktop/overdub-{prefix}out.wav')

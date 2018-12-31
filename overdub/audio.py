@@ -9,10 +9,10 @@ frame_size = 4
 sample_size = 2
 
 frames_per_block = 1024
-bytes_per_block = frame_per_block * frame_size
+bytes_per_block = frames_per_block * frame_size
 bytes_per_second = frame_rate * frame_size
 seconds_per_byte = 1 / bytes_per_second
-seconds_per_block = bytes_per_block * seconds_per_block
+seconds_per_block = bytes_per_block * seconds_per_byte
 blocks_per_second = 1 / seconds_per_block
 
 silence = b'\x00' * bytes_per_block
@@ -52,7 +52,7 @@ def sec2block(numsecs):
     return int(round(numsecs * blocks_per_second))
 
 
-def read_file(filename):
+def load(filename):
     """Read WAV file and return all data as a list of blocks."""
     blocks = []
 
@@ -70,7 +70,7 @@ def read_file(filename):
     return blocks
 
 
-def write_file(filename, blocks):
+def save(filename, blocks):
     """Write a list of blocks to a WAV file."""
     with wave.open(filename, 'w') as outfile:
         outfile.setnchannels(2)
@@ -103,10 +103,9 @@ class StreamInfo:
     play_ahead: int
 
 
-def set_callback(func):
+def start_stream(callback):
     def callback_wrapper(inblock, outblock, *_):
-        outblock[:] = func(bytes(inblock))
-        
+        outblock[:] = callback(bytes(inblock))
 
     stream = sounddevice.RawStream(
         samplerate=frame_rate,
@@ -116,10 +115,13 @@ def set_callback(func):
         callback=callback_wrapper)
     stream.start()
 
+    latency = sum(stream.latency)
+    play_ahead = int(round(latency * blocks_per_second))
+
     return StreamInfo(stream,
-                      latency=sum(self.stream.latency),
-                      play_ahead=int(round(self.latency * blocks_per_second)))
+                      latency=latency,
+                      play_ahead=play_ahead)
 
 
-def clear_callback(stream_info):
+def stop_stream(stream_info):
     stream_info.stream.stop()

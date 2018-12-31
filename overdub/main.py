@@ -9,8 +9,6 @@ def parse_args():
 
     arg('--terminal', '-t', action='store_true', help='run in terminal')
     arg('--minimalist', '-m', action='store_true', help='use minimalst UI')
-    arg('--backing-track', '-b', dest='backing_track', default=None,
-        help='WAV file to play along with recording')
     arg('--output-file', '-o', dest='outfile', default=None,
         help='output filename')
     arg('infile', nargs='?')
@@ -25,9 +23,6 @@ def main():
     if args.infile is not None:
         deck.blocks = audio.load(args.infile)
     
-    if args.backing_track is not None:
-        deck.backing_track = audio.load(args.backing_track)
-
     if args.terminal:
         from .terminal_ui import mainloop
     else:

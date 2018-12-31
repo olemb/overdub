@@ -15,9 +15,6 @@ def make_status_line(deck):
 
     flags = ''
 
-    if deck.can_undo:
-        flags += '+'
-
     if deck.solo:
         flags += 's'
 

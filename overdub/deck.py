@@ -4,11 +4,11 @@ from . import audio
 
 def play_block(blocks, pos):
     if blocks is None:
-        return audio.SILENCE
+        return audio.silence
     if 0 <= pos < len(blocks):
         return blocks[pos]
     else:
-        return audio.SILENCE
+        return audio.silence
 
 
 def record_block(blocks, pos, block):
@@ -20,7 +20,7 @@ def record_block(blocks, pos, block):
         blocks.append(block)
     else:
         gap = pos - len(blocks)
-        blocks.extend([audio.SILENCE] * gap)
+        blocks.extend([audio.silence] * gap)
         blocks.append(block)
 
 
@@ -38,10 +38,10 @@ class Deck:
             self.blocks = blocks
 
         self._sync_event = threading.Event()
-        self._callback_info = audio.set_callback(self._audio_callback)
+        self._stream_info = audio.start_stream(self._audio_callback)
 
     def close(self):
-        audio.cancel_callback(self._callback_info)
+        audio.stop_stream(self._stream_info)
 
     def _sync(self):
         # Todo: timeout.
@@ -115,16 +115,14 @@ class Deck:
         self._sync_event.set()
 
         if (self.mode != 'stopped' or self.scrub) and not self.solo:
-            block = play_block(self.blocks, self.pos)
-            backing = play_block(self.backing_track, self.pos)
-            outblock = audio.add_blocks([block, backing])
+            outblock = play_block(self.blocks, self.pos)
         else:
-            outblock = audio.SILENCE
+            outblock = audio.silence
 
         # We need to record after playing back in case the block is
         # recorded at the same position as playback.
         if self.mode == 'recording':
-            recpos = self.pos - self._stream.play_ahead
+            recpos = self.pos - self._stream_info.play_ahead
             record_block(self.blocks, recpos, inblock)
 
         if self.mode != 'stopped':

@@ -44,7 +44,7 @@ def read_event(device):
 class Gamepad:
     def __init__(self, number=0, optional=False, callback=None):
         self.number = number
-        self.path = '/dev/input/js{}'.format(number)
+        self.path = f'/dev/input/js{number}'
         self._queue = queue.Queue()
         self._callback = callback
 

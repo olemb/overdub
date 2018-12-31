@@ -51,7 +51,6 @@ class GUI:
 
         self.window.bind('<KeyPress-Return>', wrap(self.deck.toggle_record))
         self.window.bind('<KeyPress-space>', wrap(self.deck.toggle_play))
-        self.window.bind('<KeyPress-BackSpace>', wrap(self.deck.undo))
 
         self.window.bind('<ButtonPress-2>', wrap(self.deck.toggle_record))
 
@@ -135,8 +134,6 @@ class GUI:
                         self.deck.stop()
                     elif button == 3:
                         self.deck.play()
-                    elif button == 4:
-                        self.deck.undo()
 
                     elif button == 12:
                         # Push right joystick.
@@ -161,9 +158,6 @@ class GUI:
 
             if self.deck.time < 1:
                 flags.append('.')
-
-            if self.deck.can_undo:
-                flags.append('+')
 
             self.statusbar.set(' '.join(flags))
         else:

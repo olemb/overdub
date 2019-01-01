@@ -82,17 +82,17 @@ def color_text(text, color):
     return '\001\033[' + colors[color] + 'm\002' + text + '\001\033[0m\002'
 
 
-def make_minimalist_status_line(deck):
+def make_minimalist_status_line(status):
     # This produces some broken characters around the colored text.
-    # if deck.mode == 'recording':
+    # if status.mode == 'recording':
     #     mode = color_text('recording', 'red')
-    # elif deck.mode == 'playing':
+    # elif status.mode == 'playing':
     #     mode = color_text('playing', 'green')
     # else:
-    #     mode = deck.mode
-    mode = deck.mode
+    #     mode = status.mode
+    mode = status.mode
 
-    if deck.time < 0.1:
+    if status.time < 0.1:
         dot = '.'
     else:
         dot = ' '
@@ -131,10 +131,11 @@ def mainloop(deck, args):
                     elif event == 'rewind':
                         deck.skip(-1)
 
+                status = deck.get_status()
                 if args.minimalist:
-                    update_line(make_minimalist_status_line(deck))
+                    update_line(make_minimalist_status_line(status))
                 else:
-                    update_line('  ' + make_status_line(deck))
+                    update_line('  ' + make_status_line(status))
 
                 time.sleep(0.05)
 

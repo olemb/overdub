@@ -148,23 +148,23 @@ class GUI:
             scale = 1
         self.deck.skip(self.gamepad_skipdist * scale)
 
-        self.update_display()
+        self.update_display(self.deck.get_status())
         self.window.after(50, self.update)
 
-    def update_display(self):
+    def update_display(self, status):
         if self.minimalist:
             flags = []
 
-            if self.deck.time < 1:
+            if status.time < 1:
                 flags.append('.')
 
             self.statusbar.set(' '.join(flags))
         else:
-            self.statusbar.set(make_status_line(self.deck))
+            self.statusbar.set(make_status_line(status))
 
         background = {'recording': '#a00',  # Red
                       'playing': '#050',  # Green
-                      'stopped': 'black'}[self.deck.mode]
+                      'stopped': 'black'}[status.mode]
 
         for widget in [self.window, self.statusbar_label, self.filename_label]:
             widget['background'] = background

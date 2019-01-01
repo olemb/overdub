@@ -1,5 +1,6 @@
 import threading
-from . import audio, view
+from . import audio
+from .status import Status
 
 
 def play_block(blocks, pos):
@@ -48,12 +49,12 @@ class Deck:
         self._sync_event.clear()
         self._sync_event.wait()
 
-    def get_viewinfo(self):
-        return view.ViewInfo(time=audio.block2sec(self.pos),
-                             end=audio.block2sec(len(self.blocks)),
-                             mode=self.mode,
-                             solo=self.solo,
-                             meter=self.meter)
+    def get_status(self):
+        return Status(time=audio.block2sec(self.pos),
+                      end=audio.block2sec(len(self.blocks)),
+                      mode=self.mode,
+                      solo=self.solo,
+                      meter=self.meter)
 
     def play(self, time=None):
         self.mode = 'playing'

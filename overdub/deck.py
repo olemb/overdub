@@ -100,10 +100,14 @@ class Deck:
                     self.mode = 'playing'
 
             elif name == 'TogglePlay':
-                pass
+                self.mode = {'stopped': 'playing',
+                             'playing': 'stopped',
+                             'recording': 'playing'}[self.mode]
 
             elif name == 'ToggleRecord':
-                pass
+                self.mode = {'stopped': 'recording',
+                             'playing': 'recording',
+                             'recording': 'playing'}[self.mode]
 
     def _audio_callback(self, inblock):
         self._handle_commands()

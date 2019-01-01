@@ -9,19 +9,19 @@ def format_time(seconds):
     return f'{minutes:d}:{seconds:02d}:{decimals:02d}'
 
 
-def make_status_line(deck):
-    time = format_time(deck.time)
-    end = format_time(deck.end)
+def make_status_line(view):
+    time = format_time(view.time)
+    end = format_time(view.end)
 
     flags = ''
 
-    if deck.solo:
+    if view.solo:
         flags += 's'
 
     if flags:
         flags = ' ' + flags
 
-    meter = '|' * int(deck.meter * 20)
+    meter = '|' * int(view.meter * 20)
     meter = '[{}]'.format(meter.ljust(20))
 
     text = f'{time} / {end} {deck.mode}{flags} {meter}'
@@ -33,7 +33,7 @@ def make_status_line(deck):
             'playing': '0:20:85 / 3:42:37 playing [|||                 ]',
             'recording':
             '0:11:37 / 3:42:37 recording * [||||||||            ]',
-        }[deck.mode]
+        }[view.mode]
 
     return text
 

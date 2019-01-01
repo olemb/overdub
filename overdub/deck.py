@@ -1,5 +1,5 @@
 import threading
-from . import audio
+from . import audio, view
 
 
 def play_block(blocks, pos):
@@ -47,6 +47,13 @@ class Deck:
         # Todo: timeout.
         self._sync_event.clear()
         self._sync_event.wait()
+
+    def get_viewinfo(self):
+        return view.ViewInfo(time=audio.block2sec(self.pos),
+                             end=audio.block2sec(len(self.blocks)),
+                             mode=self.mode,
+                             solo=self.solo,
+                             meter=self.meter)
 
     def play(self, time=None):
         self.mode = 'playing'

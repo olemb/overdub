@@ -9,6 +9,7 @@ frame_size = 4
 sample_size = 2
 
 frames_per_block = 1024
+
 bytes_per_block = frames_per_block * frame_size
 bytes_per_second = frame_rate * frame_size
 seconds_per_byte = 1 / bytes_per_second

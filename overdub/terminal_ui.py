@@ -6,6 +6,7 @@ import termios
 from contextlib import contextmanager
 from overdub import audio
 from overdub.status_line import make_status_line
+from overdub.commands import TogglePlay, ToggleRecord, Skip
 
 
 def hide_cursor():
@@ -35,36 +36,6 @@ def term():
         show_cursor()
         termios.tcsetattr(fd, termios.TCSAFLUSH, oldterm)
         fcntl.fcntl(fd, fcntl.F_SETFL, oldflags)
-
-
-def get_event():
-    char = sys.stdin.read(1)
-
-    if char == '\x1b':
-        code = sys.stdin.read(2)
-        if code == '[C':
-            return 'wind'
-        elif code == '[D':
-            return 'rewind'
-    elif char == 'q':
-        return 'quit'
-    elif char == 's':
-        return 'snapshot'
-    elif char == '\n':
-        return 'toggle_record'
-    elif char == ' ':
-        return 'toggle_play'
-
-    return None
-
-
-def get_events():
-    while True:
-        event = get_event()
-        if event:
-            yield event
-        else:
-            break
 
 
 def update_line(text):
@@ -108,6 +79,36 @@ def make_minimalist_status_line(status):
     return f' {dot} {mode}'
 
 
+def get_event():
+    char = sys.stdin.read(1)
+
+    if char == '\x1b':
+        code = sys.stdin.read(2)
+        if code == '[C':
+            return 'wind'
+        elif code == '[D':
+            return 'rewind'
+    elif char == 'q':
+        return 'quit'
+    elif char == 's':
+        return 'snapshot'
+    elif char == '\n':
+        return 'toggle_record'
+    elif char == ' ':
+        return 'toggle_play'
+
+    return None
+
+
+def get_events():
+    while True:
+        event = get_event()
+        if event:
+            yield event
+        else:
+            break
+
+
 def mainloop(deck, args):
     if os.path.exists(args.filename):
         deck.blocks = audio.load(args.filename)
@@ -123,13 +124,13 @@ def mainloop(deck, args):
                         print()
                         audio.save(args.filename, deck.blocks)
                     elif event == 'toggle_play':
-                        deck.toggle_play()
+                        deck.do(TogglePlay())
                     elif event == 'toggle_record':
-                        deck.toggle_record()
+                        deck.do(ToggleRecord())
                     elif event == 'wind':
-                        deck.skip(1)
+                        deck.do(Skip(1))
                     elif event == 'rewind':
-                        deck.skip(-1)
+                        deck.do(Skip(-1))
 
                 status = deck.get_status()
                 if args.minimalist:

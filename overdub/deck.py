@@ -1,4 +1,4 @@
-import threading
+import queue
 from . import audio
 from .status import Status
 
@@ -25,6 +25,33 @@ def record_block(blocks, pos, block):
         blocks.append(block)
 
 
+class CommandQueue:
+    """What's going on here is really subtle and need to be documented at
+    some point.
+
+    Short version:
+
+    queue.do(Skip(1))
+    queue.do(Goto(0), Record())  # Atomic. Guaranteed to start recording at 0.
+
+    The audio callback will execute all pending commands before it
+    starts processing audio. Thus the operation above is guaranteed to
+    be atomic.
+    """
+    def __init__(self):
+        self.q = queue.Queue()
+    
+    def do(self, *commands):
+        self.q.put(commands)
+
+    def __iter__(self):
+        while True:
+            try:
+                yield from self.q.get_nowait()
+            except queue.Empty:
+                return
+
+
 class Deck:
     def __init__(self, blocks=None):
         self.pos = 0
@@ -38,16 +65,12 @@ class Deck:
         else:
             self.blocks = blocks
 
-        self._sync_event = threading.Event()
+        self._command_queue = CommandQueue()
+        self.do = self._command_queue.do
         self._stream_info = audio.start_stream(self._audio_callback)
 
     def close(self):
         audio.stop_stream(self._stream_info)
-
-    def _sync(self):
-        # Todo: timeout.
-        self._sync_event.clear()
-        self._sync_event.wait()
 
     def get_status(self):
         return Status(time=audio.block2sec(self.pos),
@@ -56,71 +79,34 @@ class Deck:
                       solo=self.solo,
                       meter=self.meter)
 
-    def play(self, time=None):
-        self.mode = 'playing'
-        self.time = time
-        self._sync()
-
-    def record(self, time=None):
-        if self.mode == 'recording':
-            self.mode = 'playing'
-        self._sync()
-
-        self.time = time
-        self.mode = 'recording'
-        self._sync()
-
-    def stop(self, time=None):
-        self.mode = 'stopped'
-        self.time = time
-        self._sync()
-
-    def toggle_play(self):
-        if self.mode == 'stopped':
-            self.play()
-        else:
-            self.stop()
-
-    def toggle_record(self):
-        if self.mode == 'recording':
-            self.play()
-        else:
-            self.record()
-
-    @property
-    def time(self):
-        return audio.block2sec(self.pos)
-
-    @time.setter
-    def time(self, time):
-        # This is used for keyword arguments where the default is None.
-        if time is None:
-            return
-
-        self.pos = audio.sec2block(time)
-
-        if self.pos < 0:
-            self.pos = 0
-
-    @property
-    def end(self):
-        return audio.block2sec(len(self.blocks))
-
-    def skip(self, time):
-        if time == 0:
-            return
-
-        if self.mode == 'recording':
-            self.mode = 'playing'
-
-        self.time += time
-
     def update_meter(self, block):
-        # Todo: scale value by sample rate / block size.
+        # TODO: scale value by sample rate / block size.
         self.meter = max(self.meter - 0.04, audio.get_max_value(block))
 
+    def _handle_commands(self):
+        for cmd in self._command_queue:
+
+            # TODO: this is kind of awkward.
+            name = cmd.__class__.__name__
+            
+            if name == 'Goto':
+                self.pos = max(0, audio.sec2block(cmd.time))
+                if self.mode == 'recording':
+                    self.mode = 'playing'
+
+            elif name == 'Skip':
+                self.pos = max(0, self.pos + audio.sec2block(cmd.seconds))
+                if self.mode == 'recording':
+                    self.mode = 'playing'
+
+            elif name == 'TogglePlay':
+                pass
+
+            elif name == 'ToggleRecord':
+                pass
+
     def _audio_callback(self, inblock):
-        self._sync_event.set()
+        self._handle_commands()
 
         if (self.mode != 'stopped' or self.scrub) and not self.solo:
             outblock = play_block(self.blocks, self.pos)

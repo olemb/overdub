@@ -8,7 +8,7 @@ class Goto:
 
 @dataclass(frozen=True)
 class Skip:
-    time: float
+    seconds: float
 
 
 @dataclass(frozen=True)
@@ -34,3 +34,4 @@ class TogglePlay:
 @dataclass(frozen=True)
 class ToggleRecord:
     pass
+

@@ -34,4 +34,3 @@ class TogglePlay:
 @dataclass(frozen=True)
 class ToggleRecord:
     pass
-

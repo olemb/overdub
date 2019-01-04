@@ -109,9 +109,9 @@ def get_events():
             break
 
 
-def mainloop(deck, args):
-    if os.path.exists(args.filename):
-        deck.load(args.filename)
+def mainloop(deck, filename, minimalist=False):
+    if os.path.exists(filename):
+        deck.load(filename)
 
     try:
         with term():
@@ -120,9 +120,9 @@ def mainloop(deck, args):
                     if event == 'quit':
                         return
                     elif event == 'snapshot':
-                        update_line(f'Saving {args.filename}')
+                        update_line(f'Saving {filename}')
                         print()
-                        deck.save(args.filename)
+                        deck.save(filename)
                     elif event == 'toggle_play':
                         deck.do(TogglePlay())
                     elif event == 'toggle_record':
@@ -133,7 +133,7 @@ def mainloop(deck, args):
                         deck.do(Skip(-1))
 
                 status = deck.get_status()
-                if args.minimalist:
+                if minimalist:
                     update_line(make_minimalist_status_line(status))
                 else:
                     update_line('  ' + make_status_line(status))
@@ -144,8 +144,8 @@ def mainloop(deck, args):
         pass
     finally:
         if len(deck.blocks) > 0:
-            update_line(f'Saving {args.filename}')
-            deck.save(args.filename)
+            update_line(f'Saving {filename}')
+            deck.save(filename)
         else:
             update_line('Nothing to save')
         print()

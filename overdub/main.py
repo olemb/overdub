@@ -24,4 +24,4 @@ def main():
     else:
         from .tkinter_ui import mainloop
 
-    mainloop(deck, args)
+    mainloop(deck, args.filename, minimalist=args.minimalist)

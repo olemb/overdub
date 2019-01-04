@@ -90,18 +90,18 @@ class GUI:
         self.window.destroy()
 
 
-def mainloop(deck, args):
-    if os.path.exists(args.filename):
-        deck.load(args.filename)
+def mainloop(deck, filename, minimalist=False):
+    if os.path.exists(filename):
+        deck.load(filename)
 
-    gui = GUI(deck, args.filename, minimalist=args.minimalist)
+    gui = GUI(deck, filename, minimalist=minimalist)
 
     try:
         gui.mainloop()
     finally:
         deck.close()
         if len(deck.blocks) > 0:
-            print(f'\nSaving to {args.filename}\n')
-            deck.save(args.filename)
+            print(f'\nSaving to {filename}\n')
+            deck.save(filename)
         else:
             print('\nNothing to save\n')

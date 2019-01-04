@@ -34,3 +34,7 @@ class TogglePlay:
 @dataclass(frozen=True)
 class ToggleRecord:
     pass
+
+
+__all__ = ['Goto', 'Skip', 'Record', 'Play', 'Stop', 'TogglePlay',
+           'ToggleRecord']

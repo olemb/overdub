@@ -1,1 +1,2 @@
-sounddevice
+sounddevice>=0.3.12
+

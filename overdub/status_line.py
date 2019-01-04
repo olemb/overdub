@@ -36,11 +36,3 @@ def make_status_line(status):
         }[status.mode]
 
     return text
-
-
-SCREENSHOT_TEXT = {
-    'stopped': '0:00:00 / 3:42:37 stopped [||                  ]',
-    'playing': '0:20:85 / 3:42:37 playing [|||                 ]',
-    'recording':
-    '0:11:37 / 3:42:37 recording * [||||||||            ]',
-}

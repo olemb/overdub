@@ -66,7 +66,6 @@ class Deck:
             self.blocks = blocks
 
         self._command_queue = CommandQueue()
-        self.do = self._command_queue.do
         self._stream_info = audio.start_stream(self._audio_callback)
 
     def close(self):
@@ -77,6 +76,9 @@ class Deck:
 
     def save(self, filename):
         audio.save(filename, self.blocks)
+
+    def do(self, *commands):
+        self._command_queue.do(self, *commands)
 
     def get_status(self):
         return Status(time=audio.block2sec(self.pos),

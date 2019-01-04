@@ -79,7 +79,7 @@ class Deck:
                       solo=self.solo,
                       meter=self.meter)
 
-    def update_meter(self, block):
+    def _update_meter(self, block):
         # TODO: scale value by sample rate / block size.
         self.meter = max(self.meter - 0.04, audio.get_max_value(block))
 
@@ -136,8 +136,8 @@ class Deck:
             self.pos += 1
 
         if self.solo:
-            self.update_meter(inblock)
+            self._update_meter(inblock)
         else:
-            self.update_meter(audio.add_blocks([inblock, outblock]))
+            self._update_meter(audio.add_blocks([inblock, outblock]))
 
         return outblock

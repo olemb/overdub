@@ -108,7 +108,7 @@ class Deck:
             elif name == 'TogglePlay':
                 self.mode = {'stopped': 'playing',
                              'playing': 'stopped',
-                             'recording': 'playing'}[self.mode]
+                             'recording': 'stopped'}[self.mode]
 
             elif name == 'ToggleRecord':
                 self.mode = {'stopped': 'recording',

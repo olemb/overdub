@@ -111,7 +111,7 @@ def get_events():
 
 def mainloop(deck, args):
     if os.path.exists(args.filename):
-        deck.blocks = audio.load(args.filename)
+        deck.load(args.filename)
 
     try:
         with term():
@@ -122,7 +122,7 @@ def mainloop(deck, args):
                     elif event == 'snapshot':
                         update_line(f'Saving {args.filename}')
                         print()
-                        audio.save(args.filename, deck.blocks)
+                        deck.save(args.filename)
                     elif event == 'toggle_play':
                         deck.do(TogglePlay())
                     elif event == 'toggle_record':
@@ -145,7 +145,7 @@ def mainloop(deck, args):
     finally:
         if len(deck.blocks) > 0:
             update_line(f'Saving {args.filename}')
-            audio.save(args.filename, deck.blocks)
+            deck.save(args.filename)
         else:
             update_line('Nothing to save')
         print()

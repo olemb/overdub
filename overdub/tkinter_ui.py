@@ -2,6 +2,7 @@
 http://www.ittc.ku.edu/~niehaus/classes/448-s04/448-standard/simple_gui_examples/index.html
 http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm
 """
+import os
 import tkinter as tk
 import tkinter.font
 from . import audio
@@ -90,6 +91,9 @@ class GUI:
 
 
 def mainloop(deck, args):
+    if os.path.exists(args.filename):
+        deck.load(args.filename)
+
     gui = GUI(deck, args.filename, minimalist=args.minimalist)
 
     try:
@@ -98,6 +102,6 @@ def mainloop(deck, args):
         deck.close()
         if len(deck.blocks) > 0:
             print(f'\nSaving to {args.filename}\n')
-            audio.save(args.filename, gui.deck.blocks)
+            deck.save(args.filename)
         else:
             print('\nNothing to save\n')

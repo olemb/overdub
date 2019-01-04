@@ -71,6 +71,12 @@ class Deck:
 
     def close(self):
         audio.stop_stream(self._stream_info)
+    
+    def load(self, filename):
+        self.blocks = audio.load(filename)
+
+    def save(self, filename):
+        audio.save(filename, self.blocks)
 
     def get_status(self):
         return Status(time=audio.block2sec(self.pos),

@@ -116,7 +116,7 @@ class Deck:
                              'recording': 'playing'}[self.mode]
 
             elif name == 'Record':
-                self.mode = 'record'
+                self.mode = 'recording'
 
             elif name == 'Play':
                 self.mode = 'playing'

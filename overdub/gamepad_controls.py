@@ -5,13 +5,13 @@ from .commands import Record, Stop, Play, Goto, Scrub
 def start_gamepad(do):
     def handle_gamepad():
         for event in iter_gamepad(0):
-            if event.is_button(0, True):
+            if event.is_button_press(0):
                 do(Record())
-            elif event.is_button(1, True):
+            elif event.is_button_press(1):
                 do(Stop())
-            elif event.is_button(2, True):
+            elif event.is_button_press(2):
                 do(Play())
-            elif event.is_button(3, True):
+            elif event.is_button_press(3):
                 do(Goto(0))
             elif event.is_axis(3):
                 do(Scrub((-event.value) * 100))

@@ -1,3 +1,4 @@
+import os
 import struct
 from dataclasses import dataclass
 
@@ -56,6 +57,18 @@ def parse_event(data):
 def read_event(device):
     event_size = 8
     return parse_event(device.read(event_size))
+
+
+def gamepad_exists(number):
+    return os.path.exists(f'/dev/input/js{number}')
+
+
+def list_gamepads():
+    gamepads = []
+    for i in range(16):
+        if gamepad_exists(i):
+            gamepads.append(i)
+    return gamepads
 
 
 def iter_gamepad(number, include_init=False):

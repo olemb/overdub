@@ -3,7 +3,7 @@ import sys
 import time
 from overdub.status_line import format_status
 from overdub.threads import start_thread
-from overdub.gamepad import iter_gamepad
+from overdub.gamepad import iter_gamepad, gamepad_exists
 from overdub.deck import Deck
 from overdub.commands import Goto, Scrub, Record, Play, Stop
 from overdub.terminal_ui import hidden_cursor
@@ -37,8 +37,10 @@ def display():
 
 
 try:
-    start_thread(handle_gamepad)
+    if gamepad_exists(0):
+        start_thread(handle_gamepad)
+    else:
+        print('Gamepad 0 not found')
     display()
 except KeyboardInterrupt:
     deck.save(filename)
-

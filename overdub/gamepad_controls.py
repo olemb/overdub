@@ -2,7 +2,7 @@ from .gamepad import iter_gamepad, gamepad_exists
 from .threads import start_thread
 from .commands import Record, Stop, Play, Goto, Scrub
 
-def start_gamepad(do):
+def start(do):
     def handle_gamepad():
         for event in iter_gamepad(0):
             if event.is_button_press(0):

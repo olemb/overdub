@@ -8,6 +8,7 @@ from . import audio
 from .status_line import format_status
 from .commands import TogglePlay, ToggleRecord, Skip
 from .deck import Deck
+from . import controls
 
 
 def hide_cursor():
@@ -125,7 +126,7 @@ def ui(filename, minimalist=False):
     if os.path.exists(filename):
         deck.load(filename)
 
-    start_gamepad(deck.do)
+    controls.start(deck.do)
 
     try:
         with term():

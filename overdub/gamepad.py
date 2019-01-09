@@ -19,10 +19,12 @@ class GamepadEvent:
         else:
             return True
 
-    def is_button(self, number=None):
+    def is_button(self, number=None, pressed=None):
         if self.type != 'button':
             return False
         elif number is not None and self.number != number:
+            return False
+        elif pressed is not None and self.value != pressed:
             return False
         else:
             return True

@@ -5,11 +5,11 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class GamepadEvent:
-    type: str       # 'button' or 'axis'
-    number: int     # Which button or axis.
-    value: float    # Normalized value.
-    is_init: bool   # Is initialize event.
-    raw_value: int  # Value.
+    type: str
+    number: int
+    value: (float, bool)  # Hmm...
+    is_init: bool
+    raw_value: int
     timestamp: int
 
     def is_axis(self, number=None):
@@ -38,20 +38,20 @@ def normalize_value(value):
 
 
 def parse_event(data):
-    timestamp, value, event_type, number = struct.unpack('IhBB', data)
+    timestamp, raw_value, event_type, number = struct.unpack('IhBB', data)
     
-    event_type_str = {1: 'button', 2: 'axis'}[event_type & 0x7f]
+    type_str = {1: 'button', 2: 'axis'}[event_type & 0x7f]
 
-    if event_type_str == 'axis':
-        normalized_value = normalize_value(value)
+    if type_str == 'axis':
+        value = normalize_value(value)
     else:
-        normalized_value = bool(value)
+        value = bool(value)
 
     return GamepadEvent(is_init=bool(event_type & 0x80),
-                        type=event_type_str,
+                        type=type_str,
                         number=number,
-                        value=normalized_value,
-                        raw_value=value,
+                        value=value,
+                        raw_value=raw_value,
                         timestamp=timestamp)
 
 

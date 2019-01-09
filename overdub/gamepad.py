@@ -84,10 +84,3 @@ def iter_gamepad(number, include_init=False):
                     yield event
             else:
                 yield event
-
-
-def example1():
-    """Print axis 0 events."""
-    for event in iter_gamepad(0):
-        if ev.is_axis(0):
-            print(ev.value)

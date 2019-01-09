@@ -130,6 +130,13 @@ class Deck:
 
             elif name == 'Stop':
                 self.mode = 'stopped'
+
+            elif name == 'PunchIn':
+                self.mode = 'recording'
+
+            elif name == 'PunchOut':
+                if self.mode == 'recording':
+                    self.mode = 'playing'
                 
     def _audio_callback(self, inblock):
         self._handle_commands()

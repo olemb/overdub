@@ -41,5 +41,16 @@ class TogglePlay:
     pass
 
 
+@dataclass(frozen=True)
+class PunchIn:
+    pass
+
+
+@dataclass(frozen=True)
+class PunchOut:
+    pass
+
+
+
 __all__ = ['Goto', 'Skip', 'Scrub', 'Record', 'Play', 'Stop',
-           'ToggleRecord', 'TogglePlay']
+           'ToggleRecord', 'TogglePlay', 'PunchIn', 'PunchOut']

@@ -57,7 +57,7 @@ class Deck:
         self.pos = 0
         self.mode = 'stopped'
         self.solo = False
-        self.scrub = False
+        self.scrub = 0.0
         self.meter = 0
 
         if blocks is None:
@@ -107,6 +107,11 @@ class Deck:
                 if self.mode == 'recording':
                     self.mode = 'playing'
 
+            elif name == 'Scrub':
+                if cmd.speed != 0 and self.mode == 'recording':
+                    self.mode = 'playing'
+                self.scrub = cmd.speed
+                
             elif name == 'TogglePlay':
                 self.mode = {'stopped': 'playing',
                              'playing': 'stopped',
@@ -128,6 +133,11 @@ class Deck:
                 
     def _audio_callback(self, inblock):
         self._handle_commands()
+
+        if self.scrub != 0:
+            self.pos += int(round(self.scrub))
+            if self.pos < 0:
+                self.pos = 0
 
         if (self.mode != 'stopped' or self.scrub) and not self.solo:
             outblock = play_block(self.blocks, self.pos)

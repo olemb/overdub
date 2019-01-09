@@ -12,6 +12,11 @@ class Skip:
 
 
 @dataclass(frozen=True)
+class Scrub:
+    speed: float
+
+
+@dataclass(frozen=True)
 class Record:
     pass
 
@@ -27,14 +32,14 @@ class Stop:
 
 
 @dataclass(frozen=True)
-class TogglePlay:
-    pass
-
-
-@dataclass(frozen=True)
 class ToggleRecord:
     pass
 
 
-__all__ = ['Goto', 'Skip', 'Record', 'Play', 'Stop', 'TogglePlay',
-           'ToggleRecord']
+@dataclass(frozen=True)
+class TogglePlay:
+    pass
+
+
+__all__ = ['Goto', 'Skip', 'Scrub', 'Record', 'Play', 'Stop',
+           'ToggleRecord', 'TogglePlay']

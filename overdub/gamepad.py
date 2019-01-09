@@ -65,11 +65,7 @@ def gamepad_exists(number):
 
 
 def list_gamepads():
-    gamepads = []
-    for i in range(16):
-        if gamepad_exists(i):
-            gamepads.append(i)
-    return gamepads
+    return [i for i in range(16) if gamepad_exists(i)]
 
 
 def iter_gamepad(number, include_init=False):

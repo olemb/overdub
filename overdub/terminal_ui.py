@@ -4,9 +4,10 @@ import time
 import fcntl
 import termios
 from contextlib import contextmanager
-from overdub import audio
-from overdub.status_line import make_status_line
-from overdub.commands import TogglePlay, ToggleRecord, Skip
+from . import audio
+from .status_line import make_status_line
+from .commands import TogglePlay, ToggleRecord, Skip
+from .deck import Deck
 
 
 def hide_cursor():
@@ -109,7 +110,9 @@ def get_events():
             break
 
 
-def mainloop(deck, filename, minimalist=False):
+def ui(filename, minimalist=False):
+    deck = Deck()
+
     if os.path.exists(filename):
         deck.load(filename)
 

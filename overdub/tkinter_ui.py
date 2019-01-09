@@ -8,6 +8,8 @@ import tkinter.font
 from . import audio
 from .status_line import make_status_line
 from .commands import TogglePlay, ToggleRecord, Skip
+from .deck import Deck
+
 
 def get_font(size):
     return tkinter.font.Font(family='Courier', size=size)
@@ -90,7 +92,9 @@ class GUI:
         self.window.destroy()
 
 
-def mainloop(deck, filename, minimalist=False):
+def ui(filename, minimalist=False):
+    deck = Deck()
+
     if os.path.exists(filename):
         deck.load(filename)
 

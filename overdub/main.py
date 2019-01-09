@@ -1,7 +1,5 @@
 import os
 import argparse
-from overdub.deck import audio
-from overdub.deck import Deck
 
 
 def parse_args():
@@ -17,11 +15,10 @@ def parse_args():
 
 def main():
     args = parse_args()
-    deck = Deck()
 
     if args.terminal:
-        from .terminal_ui import mainloop
+        from .terminal_ui import ui
     else:
-        from .tkinter_ui import mainloop
+        from .tkinter_ui import ui
 
-    mainloop(deck, args.filename, minimalist=args.minimalist)
+    ui(args.filename, minimalist=args.minimalist)

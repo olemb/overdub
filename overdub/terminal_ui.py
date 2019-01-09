@@ -5,7 +5,7 @@ import fcntl
 import termios
 from contextlib import contextmanager
 from . import audio
-from .status_line import make_status_line
+from .status_line import format_status
 from .commands import TogglePlay, ToggleRecord, Skip
 from .deck import Deck
 
@@ -139,7 +139,7 @@ def ui(filename, minimalist=False):
                 if minimalist:
                     update_line(make_minimalist_status_line(status))
                 else:
-                    update_line('  ' + make_status_line(status))
+                    update_line('  ' + format_status(status))
 
                 time.sleep(0.05)
 

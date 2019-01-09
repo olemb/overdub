@@ -6,7 +6,7 @@ import os
 import tkinter as tk
 import tkinter.font
 from . import audio
-from .status_line import make_status_line
+from .status_line import format_status
 from .commands import TogglePlay, ToggleRecord, Skip
 from .deck import Deck
 
@@ -70,7 +70,7 @@ class GUI:
 
             self.statusbar.set(' '.join(flags))
         else:
-            self.statusbar.set(make_status_line(status))
+            self.statusbar.set(format_status(status))
 
         background = {'recording': '#a00',  # Red
                       'playing': '#050',  # Green

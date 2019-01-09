@@ -1,3 +1,6 @@
+import os
+
+
 def format_time(seconds):
     minutes, seconds = divmod(seconds, 60)
     seconds, dec = divmod(seconds, 1)
@@ -9,7 +12,7 @@ def format_time(seconds):
     return f'{minutes:d}:{seconds:02d}:{decimals:02d}'
 
 
-def make_status_line(status):
+def format_status(status):
     time = format_time(status.time)
     end = format_time(status.end)
 
@@ -21,18 +24,20 @@ def make_status_line(status):
     if flags:
         flags = ' ' + flags
 
-    meter = '|' * int(status.meter * 20)
-    meter = '[{}]'.format(meter.ljust(20))
+    meter = ('|' * int(status.meter * 20)).ljust(20)
 
-    text = f'{time} / {end} {status.mode}{flags} {meter}'
+    return f'{time} / {end} {status.mode}{flags} [{meter}]'
 
-    # Screenshot text.
-    if False:
-        text = {
-            'stopped': '0:00:00 / 3:42:37 stopped [||                  ]',
-            'playing': '0:20:85 / 3:42:37 playing [|||                 ]',
-            'recording':
-            '0:11:37 / 3:42:37 recording * [||||||||            ]',
-        }[status.mode]
 
-    return text
+def _fake_status_for_screenshot(status):
+    """Return a fake status line for screenshots."""
+    return {
+        'stopped': '0:00:00 / 3:42:37 stopped [||                  ]',
+        'playing': '0:20:85 / 3:42:37 playing [|||                 ]',
+        'recording':
+        '0:11:37 / 3:42:37 recording * [||||||||            ]',
+    }[status.mode]
+
+
+if os.environ.get('OVERDUB_SCREENSHOT'):
+    format_status = _fake_status_for_screenshot

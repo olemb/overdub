@@ -125,6 +125,8 @@ def ui(filename, minimalist=False):
     if os.path.exists(filename):
         deck.load(filename)
 
+    start_gamepad(deck.do)
+
     try:
         with term():
             while True:

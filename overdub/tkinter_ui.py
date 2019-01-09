@@ -9,6 +9,7 @@ from . import audio
 from .status_line import format_status
 from .commands import TogglePlay, ToggleRecord, Skip
 from .deck import Deck
+from .gamepad_controls import start_gamepad
 
 
 def get_font(size):
@@ -99,6 +100,7 @@ def ui(filename, minimalist=False):
         deck.load(filename)
 
     gui = GUI(deck, filename, minimalist=minimalist)
+    start_gamepad(deck.do)
 
     try:
         gui.mainloop()

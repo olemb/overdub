@@ -19,6 +19,15 @@ def show_cursor():
 
 
 @contextmanager
+def hidden_cursor():
+    hide_cursor()
+    try:
+        yield
+    finally:
+        show_cursor()
+
+
+@contextmanager
 def term():
     fd = sys.stdin.fileno()
     oldterm = termios.tcgetattr(fd)

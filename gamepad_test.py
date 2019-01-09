@@ -1,16 +1,18 @@
+import os
 import sys
 import time
 from overdub.status_line import format_status
 from overdub.threads import start_thread
 from overdub.gamepad import iter_gamepad
 from overdub.deck import Deck
-from overdub.commands import Record, Play, Stop, Scrub
-
+from overdub.commands import Goto, Scrub, Record, Play, Stop
+from overdub.terminal_ui import hidden_cursor
 
 deck = Deck()
+filename = sys.argv[1]
 
-if sys.argv[1:]:
-    deck.load(sys.argv[1])
+if os.path.exists(filename):
+    deck.load(filename)
 
 
 def handle_gamepad():
@@ -21,15 +23,22 @@ def handle_gamepad():
             deck.do(Stop())
         elif event.is_button(2, True):
             deck.do(Play())
+        elif event.is_button(3, True):
+            deck.do(Goto(0))
         elif event.is_axis(3):
             deck.do(Scrub((-event.value) * 100))
 
 
-def update_display():
-    while True:
-        print('\r' + format_status(deck.get_status()), end='', flush=True)
-        time.sleep(0.1)
+def display():
+    with hidden_cursor():
+        while True:
+            print('\r' + format_status(deck.get_status()), end='', flush=True)
+            time.sleep(0.1)
 
 
-start_thread(handle_gamepad)
-update_display()
+try:
+    start_thread(handle_gamepad)
+    display()
+except KeyboardInterrupt:
+    deck.save(filename)
+

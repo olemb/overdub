@@ -1,13 +1,31 @@
-"""Read from /dev/input/js0 and return as dictionaries.
-"""
-import queue
 import struct
-import threading
+from dataclasses import dataclass
 
-JS_EVENT_BUTTON = 1
-JS_EVENT_AXIS = 2
 
-EVENT_SIZE = 8
+@dataclass(frozen=True)
+class GamepadEvent:
+    type: str       # 'button' or 'axis'
+    number: int     # Which button or axis.
+    value: float    # Normalized value.
+    is_init: bool   # Is initialize event.
+    raw_value: int  # Value.
+    timestamp: int
+
+    def is_axis(self, number=None):
+        if self.type != 'axis':
+            return False
+        elif number is not None and self.number != number:
+            return False
+        else:
+            return True
+
+    def is_button(self, number=None):
+        if self.type != 'button':
+            return False
+        elif number is not None and self.number != number:
+            return False
+        else:
+            return True
 
 
 def normalize_value(value):
@@ -15,90 +33,45 @@ def normalize_value(value):
     return float(value) / 0x7fff
 
 
-def unpack_event(data):
-    raw = {}
-    (raw['timestamp'],
-     raw['value'],
-     raw['type'],
-     raw['code']) = struct.unpack('IhBB', data)
+def parse_event(data):
+    timestamp, value, event_type, number = struct.unpack('IhBB', data)
+    
+    event_type_str = {1: 'button', 2: 'axis'}[event_type & 0x7f]
 
-    event = {}
-    event['init'] = bool(raw['type'] & 0x80)
-    event['type'] = {1: 'button', 2: 'axis'}[raw['type'] & 0x7f]
-    event['code'] = raw['code']
-    event['raw_value'] = raw['value']
-    event['timestamp'] = raw['timestamp']
-
-    if event['type'] == 'axis':
-        event['value'] = normalize_value(raw['value'])
+    if event_type_str == 'axis':
+        normalized_value = normalize_value(value)
     else:
-        event['value'] = bool(raw['value'])
+        normalized_value = bool(value)
 
-    return event
+    return GamepadEvent(is_init=bool(event_type & 0x80),
+                        type=event_type_str,
+                        number=number,
+                        value=normalized_value,
+                        raw_value=value,
+                        timestamp=timestamp)
 
 
 def read_event(device):
-    return unpack_event(device.read(EVENT_SIZE))
+    event_size = 8
+    return parse_event(device.read(event_size))
 
 
-class Gamepad:
-    def __init__(self, number=0, optional=False, callback=None):
-        self.number = number
-        self.path = f'/dev/input/js{number}'
-        self._queue = queue.Queue()
-        self._callback = callback
+def iter_gamepad(number, include_init=False):
+    if not (isinstance(number, int) and number >= 0):
+        raise ValueError('gamepad number must be positive integer')
 
-        try:
-            self._file = open(self.path, 'rb')
-            self.found = True
-        except FileNotFoundError:
-            self.found = False
-            if optional:
-                return
+    with open(f'/dev/input/js{number}', 'rb') as infile:
+        while True:
+            event = read_event(infile)
+            if event.is_init:
+                if include_init:
+                    yield event
             else:
-                raise
-
-        self._thread = threading.Thread(target=self._mainloop)
-        self._thread.setDaemon(True)
-        self._thread.start()
-
-    def _mainloop(self):
-        while True:
-            event = read_event(self._file)
-            if self._callback:
-                self._callback(event)
-            else:
-                self._queue.put(event)
-
-    @property
-    def events(self):
-        events = []
-
-        while True:
-            try:
-                events.append(self._queue.get_nowait())
-            except queue.Empty:
-                return events
-
-    def get(self):
-        return self._queue.get()
-
-    def poll(self):
-        try:
-            return self.get()
-        except queue.Empty:
-            return None
-
-    def __iter__(self):
-        while True:
-            yield self.get()
+                yield event
 
 
-if __name__ == '__main__':
-    import time
-
-    js = Gamepad(number=0, optional=True)
-
-    while True:
-        print(js.events)
-        time.sleep(0.1)
+def example1():
+    """Print axis 0 events."""
+    for event in iter_gamepad(0):
+        if ev.is_axis(0):
+            print(ev.value)

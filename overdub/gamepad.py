@@ -43,9 +43,9 @@ def parse_event(data):
     type_str = {1: 'button', 2: 'axis'}[event_type & 0x7f]
 
     if type_str == 'axis':
-        value = normalize_value(value)
+        value = normalize_value(raw_value)
     else:
-        value = bool(value)
+        value = bool(raw_value)
 
     return GamepadEvent(is_init=bool(event_type & 0x80),
                         type=type_str,

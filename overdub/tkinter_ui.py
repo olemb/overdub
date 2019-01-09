@@ -8,8 +8,6 @@ import tkinter.font
 from . import audio
 from .status_line import format_status
 from .commands import TogglePlay, ToggleRecord, Skip
-from .deck import Deck
-from . import controls
 
 
 def get_font(size):
@@ -93,14 +91,11 @@ class GUI:
         self.window.destroy()
 
 
-def ui(filename, minimalist=False):
-    deck = Deck()
-
+def ui(deck, filename, minimalist=False):
     if os.path.exists(filename):
         deck.load(filename)
 
     gui = GUI(deck, filename, minimalist=minimalist)
-    controls.start(deck.do)
 
     try:
         gui.mainloop()

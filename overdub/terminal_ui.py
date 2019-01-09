@@ -7,8 +7,6 @@ from contextlib import contextmanager
 from . import audio
 from .status_line import format_status
 from .commands import TogglePlay, ToggleRecord, Skip
-from .deck import Deck
-from . import controls
 
 
 def hide_cursor():
@@ -120,13 +118,9 @@ def get_events():
             break
 
 
-def ui(filename, minimalist=False):
-    deck = Deck()
-
+def ui(deck, filename, minimalist=False):
     if os.path.exists(filename):
         deck.load(filename)
-
-    controls.start(deck.do)
 
     try:
         with term():

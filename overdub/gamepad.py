@@ -1,5 +1,6 @@
 import os
 import struct
+from typing import Union
 from dataclasses import dataclass
 
 
@@ -7,7 +8,7 @@ from dataclasses import dataclass
 class GamepadEvent:
     type: str
     number: int
-    value: (float, bool)  # Hmm...
+    value: Union[float, bool]  # Hmm...
     is_init: bool
     raw_value: int
     timestamp: int

@@ -55,20 +55,20 @@ def sec2block(numsecs):
 
 def load(filename):
     """Read WAV file and return all data as a list of blocks."""
-    def read_file():
-        with wave.open(filename, 'r') as infile:
+    blocks = []
 
-            while True:
-                block = infile.readframes(frames_per_block)
+    with wave.open(filename, 'r') as infile:
+        while True:
+            block = infile.readframes(frames_per_block)
 
-                if len(block) == 0:
-                    return
-                elif len(block) < bytes_per_block:
-                    yield block + silence[len(block):]
-                else:
-                    yield block
+            if len(block) == 0:
+                break
+            elif len(block) < bytes_per_block:
+                blocks.append(block + silence[len(block):])
+            else:
+                blocks.append(block)
 
-    return list(read_file())
+    return blocks
 
 
 def save(filename, blocks):

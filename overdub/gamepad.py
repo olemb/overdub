@@ -3,34 +3,44 @@ import struct
 from typing import Union
 from dataclasses import dataclass
 
-
-@dataclass(frozen=True)
 class GamepadEvent:
-    type: str
-    number: int
-    value: Union[float, bool]  # Hmm...
-    is_init: bool
-    raw_value: int
-    timestamp: int
-
-    def is_axis(self, number=None):
+    def is_axis(self, axis=None):
         if self.type != 'axis':
             return False
-        elif number is not None and self.number != number:
+        elif axis is not None and self.axis != axis:
             return False
         else:
             return True
 
-    def is_button(self, number=None):
+    def is_button(self, button=None):
         if self.type != 'button':
             return False
-        elif number is not None and self.number != number:
+        elif button is not None and self.button != button:
             return False
         else:
             return True
 
-    def is_button_press(self, number=None):
-        return self.is_button(number) and self.value == True
+    def is_button_press(self, button=None):
+        return self.is_button(button) and self.pressed
+
+
+@dataclass(frozen=True)
+class ButtonEvent(GamepadEvent):
+    type: str
+    button: int
+    pressed: bool
+    is_init: bool
+    timestamp: int
+
+
+@dataclass(frozen=True)
+class AxisEvent(GamepadEvent):
+    type: str
+    axis: int
+    value: float
+    raw_value: int
+    is_init: bool
+    timestamp: int
 
 
 def normalize_value(value):
@@ -40,20 +50,25 @@ def normalize_value(value):
 
 def parse_event(data):
     timestamp, raw_value, event_type, number = struct.unpack('IhBB', data)
-    
-    type_str = {1: 'button', 2: 'axis'}[event_type & 0x7f]
+    is_init=bool(event_type & 0x80)    
 
-    if type_str == 'axis':
-        value = normalize_value(raw_value)
+    type_str = {1: 'button', 2: 'axis', }[event_type & 0x7f]
+
+    if type_str == 'button':
+        return ButtonEvent(type=type_str,
+                           button=number,
+                           pressed=bool(raw_value),
+                           is_init=is_init,
+                           timestamp=timestamp)
     else:
-        value = bool(raw_value)
+        return AxisEvent(type=type_str,
+                         axis=number,
+                         value=normalize_value(raw_value),
+                         raw_value=raw_value,
+                         is_init=is_init,
+                         timestamp=timestamp)
+                           
 
-    return GamepadEvent(is_init=bool(event_type & 0x80),
-                        type=type_str,
-                        number=number,
-                        value=value,
-                        raw_value=raw_value,
-                        timestamp=timestamp)
 
 
 def read_event(device):

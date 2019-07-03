@@ -18,7 +18,8 @@ Keyboard Controls
     Right Arrow    wind
     f              fullscreen
 
-The solo and fast winding buttons found on the gamepad have no
+There is also experimental support for control by gamepad and sustain
+pedal. The solo and fast winding buttons found on the gamepad have no
 equivalent on the keyboard. This is because I haven't yet found a way
 to ignore key repeats in Tkinter.
 

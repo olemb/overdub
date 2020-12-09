@@ -6,6 +6,8 @@ unlimited overdubs into an audio buffer.
 
 Conceptually it's like having a tape recorder without an erase head.
 
+Requires Python 3.8.
+
 
 Keyboard Controls
 -----------------

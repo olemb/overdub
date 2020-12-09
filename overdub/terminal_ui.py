@@ -110,12 +110,8 @@ def get_event():
 
 
 def get_events():
-    while True:
-        event = get_event()
-        if event:
-            yield event
-        else:
-            break
+    while event := get_event():
+        yield event
 
 
 def ui(deck, filename, minimalist=False):

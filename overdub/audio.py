@@ -58,15 +58,10 @@ def load(filename):
     blocks = []
 
     with wave.open(filename, 'r') as infile:
-        while True:
-            block = infile.readframes(frames_per_block)
-
-            if len(block) == 0:
-                break
-            elif len(block) < bytes_per_block:
-                blocks.append(block + silence[len(block):])
-            else:
-                blocks.append(block)
+        while block := infile.readframes(frames_per_block):
+            if len(block) < bytes_per_block:
+                block += silence[len(block):]
+            blocks.append(block)
 
     return blocks
 

@@ -82,32 +82,23 @@ def save(filename, blocks):
             outfile.writeframes(block)
 
 
-@dataclass
-class StreamInfo:
-    stream: sounddevice.RawStream
-    latency: int
-    play_ahead: int
+class Stream:
+    def __init__(self, callback):
+        def callback_wrapper(inblock, outblock, *_):
+            outblock[:] = callback(bytes(inblock))
 
+        self.stream = sounddevice.RawStream(
+            samplerate=frame_rate,
+            channels=2,
+            dtype='int16',
+            blocksize=frames_per_block,
+            callback=callback_wrapper,
+        )
+        self.latency = sum(self.stream.latency)
+        self.play_ahead = int(round(self.latency * blocks_per_second))
 
-def start_stream(callback):
-    def callback_wrapper(inblock, outblock, *_):
-        outblock[:] = callback(bytes(inblock))
+    def start(self):
+        self.stream.start()
 
-    stream = sounddevice.RawStream(
-        samplerate=frame_rate,
-        channels=2,
-        dtype='int16',
-        blocksize=frames_per_block,
-        callback=callback_wrapper)
-    stream.start()
-
-    latency = sum(stream.latency)
-    play_ahead = int(round(latency * blocks_per_second))
-
-    return StreamInfo(stream,
-                      latency=latency,
-                      play_ahead=play_ahead)
-
-
-def stop_stream(stream_info):
-    stream_info.stream.stop()
+    def stop(self):
+        self.stream.stop()

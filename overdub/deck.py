@@ -40,7 +40,7 @@ class CommandQueue:
     """
     def __init__(self):
         self.q = queue.Queue()
-    
+
     def do(self, *commands):
         self.q.put(commands)
 
@@ -66,11 +66,12 @@ class Deck:
             self.blocks = blocks
 
         self._command_queue = CommandQueue()
-        self._stream_info = audio.start_stream(self._audio_callback)
+        self._stream = audio.Stream(self._audio_callback)
+        self._stream.start()
 
     def close(self):
-        audio.stop_stream(self._stream_info)
-    
+        self._stream.stop()
+
     def load(self, filename):
         self.blocks = audio.load(filename)
 
@@ -96,7 +97,7 @@ class Deck:
 
             # TODO: this is kind of awkward.
             name = cmd.__class__.__name__
-            
+
             if name == 'Goto':
                 self.pos = max(0, audio.sec2block(cmd.time))
                 if self.mode == 'recording':
@@ -111,7 +112,7 @@ class Deck:
                 if cmd.speed != 0 and self.mode == 'recording':
                     self.mode = 'playing'
                 self.scrub = cmd.speed
-                
+
             elif name == 'TogglePlay':
                 self.mode = {'stopped': 'playing',
                              'playing': 'stopped',
@@ -137,7 +138,7 @@ class Deck:
             elif name == 'PunchOut':
                 if self.mode == 'recording':
                     self.mode = 'playing'
-                
+
     def _audio_callback(self, inblock):
         self._handle_commands()
 
@@ -154,7 +155,7 @@ class Deck:
         # We need to record after playing back in case the block is
         # recorded at the same position as playback.
         if self.mode == 'recording':
-            recpos = self.pos - self._stream_info.play_ahead
+            recpos = self.pos - self._stream.play_ahead
             record_block(self.blocks, recpos, inblock)
 
         if self.mode != 'stopped':

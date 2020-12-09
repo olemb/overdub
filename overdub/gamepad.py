@@ -50,25 +50,27 @@ def normalize_value(value):
 
 def parse_event(data):
     timestamp, raw_value, event_type, number = struct.unpack('IhBB', data)
-    is_init=bool(event_type & 0x80)    
+    is_init=bool(event_type & 0x80)
 
     type_str = {1: 'button', 2: 'axis', }[event_type & 0x7f]
 
     if type_str == 'button':
-        return ButtonEvent(type=type_str,
-                           button=number,
-                           pressed=bool(raw_value),
-                           is_init=is_init,
-                           timestamp=timestamp)
+        return ButtonEvent(
+            type=type_str,
+            button=number,
+            pressed=bool(raw_value),
+            is_init=is_init,
+            timestamp=timestamp,
+        )
     else:
-        return AxisEvent(type=type_str,
-                         axis=number,
-                         value=normalize_value(raw_value),
-                         raw_value=raw_value,
-                         is_init=is_init,
-                         timestamp=timestamp)
-                           
-
+        return AxisEvent(
+            type=type_str,
+            axis=number,
+            value=normalize_value(raw_value),
+            raw_value=raw_value,
+            is_init=is_init,
+            timestamp=timestamp,
+        )
 
 
 def read_event(device):

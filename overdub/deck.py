@@ -53,17 +53,14 @@ class CommandQueue:
 
 
 class Deck:
-    def __init__(self, blocks=None):
+    def __init__(self):
         self.pos = 0
         self.mode = 'stopped'
         self.solo = False
         self.scrub = 0.0
         self.meter = 0
 
-        if blocks is None:
-            self.blocks = []
-        else:
-            self.blocks = blocks
+        self.blocks = []
 
         self._command_queue = CommandQueue()
         self._stream = audio.Stream(self._audio_callback)

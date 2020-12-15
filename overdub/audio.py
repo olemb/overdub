@@ -19,7 +19,7 @@ blocks_per_second = 1 / seconds_per_block
 silence = b'\x00' * bytes_per_block
 
 
-def add_blocks(blocks):
+def sum_blocks(blocks):
     """Return a block where with the sum of the samples on all blocks.
 
     Takes an interable of blocks (byte strings). If no blocks are passed

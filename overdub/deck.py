@@ -16,7 +16,7 @@ def record_block(blocks, pos, block):
     if pos < 0:
         return
     elif pos < len(blocks):
-        blocks[pos] = audio.add_blocks([blocks[pos], block])
+        blocks[pos] = audio.sum_blocks([blocks[pos], block])
     elif pos == len(blocks):
         blocks.append(block)
     else:
@@ -164,6 +164,6 @@ class Deck:
         if self.solo:
             self._update_meter(inblock)
         else:
-            self._update_meter(audio.add_blocks([inblock, outblock]))
+            self._update_meter(audio.sum_blocks([inblock, outblock]))
 
         return outblock

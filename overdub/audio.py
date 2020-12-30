@@ -1,6 +1,5 @@
 import wave
 import audioop
-from dataclasses import dataclass
 import sounddevice
 
 

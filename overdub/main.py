@@ -1,4 +1,3 @@
-import os
 import argparse
 from .deck import Deck
 
@@ -9,7 +8,7 @@ def parse_args():
 
     arg('--terminal', '-t', action='store_true', help='run in terminal')
     arg('--minimalist', '-m', action='store_true', help='use minimalst UI')
-    arg('--gamepad', '-g', action='store_true', help='use gamepad for controls')
+    arg('--gamepad', '-g', action='store_true', help='use gamepad controls')
     arg('--punch-pedal', '-p', action='store_true', help='punch in/out pedal')
     arg('filename', metavar='file.wav', help='WAV file to overdub onto')
 

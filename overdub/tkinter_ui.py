@@ -5,7 +5,6 @@ http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm
 import os
 import tkinter as tk
 import tkinter.font
-from . import audio
 from .status_line import format_status
 from .commands import TogglePlay, ToggleRecord, Skip
 

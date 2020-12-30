@@ -1,7 +1,7 @@
 import os
 import struct
-from typing import Union
 from dataclasses import dataclass
+
 
 class GamepadEvent:
     def is_axis(self, axis=None):
@@ -50,7 +50,7 @@ def normalize_value(value):
 
 def parse_event(data):
     timestamp, raw_value, event_type, number = struct.unpack('IhBB', data)
-    is_init=bool(event_type & 0x80)
+    is_init = bool(event_type & 0x80)
 
     type_str = {1: 'button', 2: 'axis', }[event_type & 0x7f]
 

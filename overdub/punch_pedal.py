@@ -22,7 +22,7 @@ def start(do):
                 elif msg.value == 0:
                     do(PunchOut())
 
-    if _is_connected():        
+    if _is_connected():
         return start_thread(handle_pedal)
     else:
         return None

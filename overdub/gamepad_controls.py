@@ -2,6 +2,7 @@ from .gamepad import iter_gamepad, gamepad_exists
 from .threads import start_thread
 from .commands import Goto, Scrub, Record, Play, Stop
 
+
 def start(do):
     def handle_gamepad():
         for event in iter_gamepad(0):

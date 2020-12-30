@@ -4,7 +4,6 @@ import time
 import fcntl
 import termios
 from contextlib import contextmanager
-from . import audio
 from .status_line import format_status
 from .commands import TogglePlay, ToggleRecord, Skip
 

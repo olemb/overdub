@@ -56,6 +56,14 @@ class CommandQueue:
                     task.event.set()
 
 
+def in_callback(method):
+    def wrapper(self, *args, **kwargs):
+        def func():
+            return method(self, *args, **kwargs)
+        return self._command_queue.put(func)
+    return wrapper
+
+
 class Deck:
     def __init__(self):
         self.pos = 0
@@ -70,7 +78,6 @@ class Deck:
         self._stream.start()
 
         self._command_queue = CommandQueue()
-        self.in_callback = self._command_queue.put
 
     def close(self):
         self._stream.stop()
@@ -95,70 +102,60 @@ class Deck:
         # TODO: scale value by sample rate / block size.
         self.meter = max(self.meter - 0.04, audio.get_max_value(block))
 
+    @in_callback
     def goto(self, seconds):
-        @self.in_callback
-        def _():
-            self.pos = max(0, audio.sec2block(seconds))
-            if self.mode == 'recording':
-                self.mode = 'playing'
-
-    def skip(self, seconds):
-        @self.in_callback
-        def _():
-            self.pos = max(0, self.pos + audio.sec2block(seconds))
-            if self.mode == 'recording':
-                self.mode = 'playing'
-
-    def scrub(self, speed):
-        @self.in_callback
-        def _():
-            if speed != 0 and self.mode == 'recording':
-                self.mode = 'playing'
-            self.scrub = speed
-
-    def toggle_play(self):
-        @self.in_callback
-        def _():
-            self.mode = {
-                'stopped': 'playing',
-                'playing': 'stopped',
-                'recording': 'stopped',
-            }[self.mode]
-
-    def toggle_record(self):
-        @self.in_callback
-        def _():
-            self.mode = {
-                'stopped': 'recording',
-                'playing': 'recording',
-                'recording': 'playing',
-            }[self.mode]
-
-    def record(self):
-        @self.in_callback
-        def _():
-            self.mode = 'recording'
-
-    def play(self):
-        @self.in_callback
-        def _():
+        self.pos = max(0, audio.sec2block(seconds))
+        if self.mode == 'recording':
             self.mode = 'playing'
 
+    @in_callback
+    def skip(self, seconds):
+        self.pos = max(0, self.pos + audio.sec2block(seconds))
+        if self.mode == 'recording':
+            self.mode = 'playing'
+
+    @in_callback
+    def scrub(self, speed):
+        if speed != 0 and self.mode == 'recording':
+            self.mode = 'playing'
+        self.scrub = speed
+
+    @in_callback
+    def toggle_play(self):
+        self.mode = {
+            'stopped': 'playing',
+            'playing': 'stopped',
+            'recording': 'stopped',
+        }[self.mode]
+
+    @in_callback
+    def toggle_record(self):
+        self.mode = {
+            'stopped': 'recording',
+            'playing': 'recording',
+            'recording': 'playing',
+        }[self.mode]
+
+    @in_callback
+    def record(self):
+        self.mode = 'recording'
+
+    @in_callback
+    def play(self):
+        self.mode = 'playing'
+
+    @in_callback
     def stop(self):
-        @self.in_callback
-        def _():
-            self.mode = 'stopped'
+        self.mode = 'stopped'
 
+    @in_callback
     def punch_in(self):
-        @self.in_callback
-        def _():
-            self.mode = 'recording'
+        self.mode = 'recording'
 
+    @in_callback
     def punch_out(self):
-        @self.in_callback
-        def _():
-            if self.mode == 'recording':
-                self.mode = 'playing'
+        if self.mode == 'recording':
+            self.mode = 'playing'
 
     def _audio_callback(self, inblock):
         self._command_queue.handle()

@@ -1,4 +1,5 @@
 import queue
+from threading import Event
 from . import audio
 from .status import Status
 
@@ -25,21 +26,34 @@ def record_block(blocks, pos, block):
         blocks.append(block)
 
 
+class Task:
+    def __init__(self, func):
+        self.func = func
+        self.return_value = None
+        self.event = Event()
+
+
 class CommandQueue:
     def __init__(self):
         self.q = queue.Queue()
 
     def put(self, func):
-        self.q.put(func)
+        task = Task(func)
+        self.q.put(task)
+        task.event.wait()
+        return task.return_value
 
     def handle(self):
         while True:
             try:
-                func = self.q.get_nowait()
+                task = self.q.get_nowait()
             except queue.Empty:
                 return
             else:
-                func()
+                try:
+                    task.return_value = task.func()
+                finally:
+                    task.event.set()
 
 
 class Deck:
@@ -100,7 +114,7 @@ class Deck:
         def _():
             if speed != 0 and self.mode == 'recording':
                 self.mode = 'playing'
-                self.scrub = speed
+            self.scrub = speed
 
     def toggle_play(self):
         @self.in_callback

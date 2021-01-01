@@ -1,4 +1,5 @@
 import queue
+import functools
 from threading import Event
 from . import audio
 from .status import Status
@@ -57,6 +58,7 @@ class CommandQueue:
 
 
 def in_callback(method):
+    @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
         def func():
             return method(self, *args, **kwargs)

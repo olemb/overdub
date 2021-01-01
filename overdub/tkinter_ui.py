@@ -6,7 +6,6 @@ import os
 import tkinter as tk
 import tkinter.font
 from .status_line import format_status
-from .commands import TogglePlay, ToggleRecord, Skip
 
 
 def get_font(size):
@@ -38,12 +37,10 @@ class GUI:
         label.pack(side=tk.TOP, padx=10, pady=10)
         self.filename_label = label
 
-        do = self.deck.do
-
-        self.window.bind('<KeyPress-Return>', lambda *_: do(ToggleRecord()))
-        self.window.bind('<KeyPress-space>', lambda *_: do(TogglePlay()))
-        self.window.bind('<KeyPress-Left>', lambda *_: do(Skip(-1)))
-        self.window.bind('<KeyPress-Right>', lambda *_: do(Skip(1)))
+        self.window.bind('<KeyPress-Return>', lambda *_: deck.toggle_record())
+        self.window.bind('<KeyPress-space>', lambda *_: deck.toggle_play())
+        self.window.bind('<KeyPress-Left>', lambda *_: deck.skip(-1))
+        self.window.bind('<KeyPress-Right>', lambda *_: deck.skip(1))
 
         self.window.bind('<KeyPress-f>', lambda *_: self.toggle_fullscreen)
 
@@ -56,7 +53,7 @@ class GUI:
         self.window.attributes("-fullscreen", self.fullscreen)
 
     def update(self):
-        self.update_display(self.deck.get_status())
+        self.update_display(self.deck.status)
         self.window.after(50, self.update)
 
     def update_display(self, status):

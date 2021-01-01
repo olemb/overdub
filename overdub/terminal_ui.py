@@ -5,7 +5,6 @@ import fcntl
 import termios
 from contextlib import contextmanager
 from .status_line import format_status
-from .commands import TogglePlay, ToggleRecord, Skip
 
 
 def hide_cursor():
@@ -128,15 +127,15 @@ def ui(deck, filename, minimalist=False):
                         print()
                         deck.save(filename)
                     elif event == 'toggle_play':
-                        deck.do(TogglePlay())
+                        deck.toggle_play()
                     elif event == 'toggle_record':
-                        deck.do(ToggleRecord())
+                        deck.toggle_record()
                     elif event == 'wind':
-                        deck.do(Skip(1))
+                        deck.skip(1)
                     elif event == 'rewind':
-                        deck.do(Skip(-1))
+                        deck.skip(-1)
 
-                status = deck.get_status()
+                status = deck.status
                 if minimalist:
                     update_line(make_minimalist_status_line(status))
                 else:

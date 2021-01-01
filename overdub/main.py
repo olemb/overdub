@@ -21,11 +21,11 @@ def main():
 
     if args.gamepad:
         from overdub import gamepad_controls
-        gamepad_controls.start(deck.do)
+        gamepad_controls.start(deck)
 
     if args.punch_pedal:
         from overdub import punch_pedal
-        punch_pedal.start(deck.do)
+        punch_pedal.start(deck)
 
     if args.terminal:
         from .terminal_ui import ui

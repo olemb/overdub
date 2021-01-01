@@ -40,4 +40,4 @@ def _fake_status_for_screenshot(status):
 
 
 if os.environ.get('OVERDUB_SCREENSHOT'):
-    format_status = _fake_status_for_screenshot  # noqa: F881
+    format_status = _fake_status_for_screenshot  # noqa: 881

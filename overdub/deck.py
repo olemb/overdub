@@ -1,6 +1,5 @@
 import queue
 import functools
-from threading import Event
 from . import audio
 from .status import Status
 
@@ -27,34 +26,21 @@ def record_block(blocks, pos, block):
         blocks.append(block)
 
 
-class Task:
-    def __init__(self, func):
-        self.func = func
-        self.return_value = None
-        self.event = Event()
-
-
 class CommandQueue:
     def __init__(self):
         self.q = queue.Queue()
 
     def put(self, func):
-        task = Task(func)
-        self.q.put(task)
-        task.event.wait()
-        return task.return_value
+        self.q.put(func)
 
-    def handle(self):
+    def call_pending_functions(self):
         while True:
             try:
-                task = self.q.get_nowait()
+                func = self.q.get_nowait()
             except queue.Empty:
                 return
             else:
-                try:
-                    task.return_value = task.func()
-                finally:
-                    task.event.set()
+                func()
 
 
 def in_callback(method):
@@ -160,7 +146,7 @@ class Deck:
             self.mode = 'playing'
 
     def _audio_callback(self, inblock):
-        self._command_queue.handle()
+        self._command_queue.call_pending_functions()
 
         if self.scrub != 0:
             self.pos += int(round(self.scrub))

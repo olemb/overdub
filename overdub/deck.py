@@ -26,23 +26,6 @@ def record_block(blocks, pos, block):
         blocks.append(block)
 
 
-class CommandQueue:
-    def __init__(self):
-        self.q = queue.Queue()
-
-    def put(self, func):
-        self.q.put(func)
-
-    def call_pending_functions(self):
-        while True:
-            try:
-                func = self.q.get_nowait()
-            except queue.Empty:
-                return
-            else:
-                func()
-
-
 def in_callback(method):
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
@@ -65,7 +48,7 @@ class Deck:
         self._stream = audio.Stream(self._audio_callback)
         self._stream.start()
 
-        self._command_queue = CommandQueue()
+        self._command_queue = queue.Queue()
 
     def close(self):
         self._stream.stop()
@@ -145,8 +128,17 @@ class Deck:
         if self.mode == 'recording':
             self.mode = 'playing'
 
+    def _handle_commands(self):
+        while True:
+            try:
+                func = self._command_queue.get_nowait()
+            except queue.Empty:
+                return
+            else:
+                func()
+
     def _audio_callback(self, inblock):
-        self._command_queue.call_pending_functions()
+        self._handle_commands()
 
         if self.scrub != 0:
             self.pos += int(round(self.scrub))

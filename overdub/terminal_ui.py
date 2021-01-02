@@ -135,7 +135,7 @@ def ui(deck, filename, minimalist=False):
                     elif event == 'rewind':
                         deck.skip(-1)
 
-                status = deck.status
+                status = deck.get_status()
                 if minimalist:
                     update_line(make_minimalist_status_line(status))
                 else:

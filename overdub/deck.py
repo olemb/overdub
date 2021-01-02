@@ -59,8 +59,7 @@ class Deck:
     def save(self, filename):
         audio.save(filename, self.blocks)
 
-    @property
-    def status(self):
+    def get_status(self):
         return Status(
             time=audio.block2sec(self.pos),
             end=audio.block2sec(len(self.blocks)),

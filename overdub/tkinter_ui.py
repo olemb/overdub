@@ -53,7 +53,7 @@ class GUI:
         self.window.attributes("-fullscreen", self.fullscreen)
 
     def update(self):
-        self.update_display(self.deck.status)
+        self.update_display(self.deck.get_status())
         self.window.after(50, self.update)
 
     def update_display(self, status):

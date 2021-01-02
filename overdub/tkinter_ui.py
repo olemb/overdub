@@ -67,9 +67,11 @@ class GUI:
         else:
             self.statusbar.set(format_status(status))
 
-        background = {'recording': '#a00',  # Red
-                      'playing': '#050',  # Green
-                      'stopped': 'black'}[status.mode]
+        background = {
+            'recording': '#a00',  # Red
+            'playing': '#050',  # Green
+            'stopped': 'black',
+        }[status.mode]
 
         for widget in [self.window, self.statusbar_label, self.filename_label]:
             widget['background'] = background

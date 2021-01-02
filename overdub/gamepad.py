@@ -45,14 +45,17 @@ class AxisEvent(GamepadEvent):
 
 def normalize_value(value):
     """Normalize value to -1..1."""
-    return float(value) / 0x7fff
+    return float(value) / 0x7FFF
 
 
 def parse_event(data):
     timestamp, raw_value, event_type, number = struct.unpack('IhBB', data)
     is_init = bool(event_type & 0x80)
 
-    type_str = {1: 'button', 2: 'axis', }[event_type & 0x7f]
+    type_str = {
+        1: 'button',
+        2: 'axis',
+    }[event_type & 0x7F]
 
     if type_str == 'button':
         return ButtonEvent(

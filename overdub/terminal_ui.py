@@ -53,9 +53,9 @@ def update_line(text):
 
 def color_text(text, color):
     colors = {
-        'green':  '92',
+        'green': '92',
         'yellow': '93',
-        'red':    '31',
+        'red': '31',
     }
     return '\001\033[' + colors[color] + 'm\002' + text + '\001\033[0m\002'
 

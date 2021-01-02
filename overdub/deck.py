@@ -31,7 +31,9 @@ def in_callback(method):
     def wrapper(self, *args, **kwargs):
         def func():
             return method(self, *args, **kwargs)
+
         return self._command_queue.put(func)
+
     return wrapper
 
 

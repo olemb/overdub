@@ -15,7 +15,7 @@ seconds_per_byte = 1 / bytes_per_second
 seconds_per_block = bytes_per_block * seconds_per_byte
 blocks_per_second = 1 / seconds_per_block
 
-silence = b'\x00' * bytes_per_block
+silence = b'\0' * bytes_per_block
 
 
 def sum_blocks(blocks):

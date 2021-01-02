@@ -69,10 +69,6 @@ class Deck:
             meter=self.meter,
         )
 
-    def _update_meter(self, block):
-        # TODO: scale value by sample rate / block size.
-        self.meter = max(self.meter - 0.04, audio.get_max_value(block))
-
     @in_callback
     def goto(self, seconds):
         self.pos = max(0, audio.sec2block(seconds))
@@ -127,6 +123,10 @@ class Deck:
     def punch_out(self):
         if self.mode == 'recording':
             self.mode = 'playing'
+
+    def _update_meter(self, block):
+        # TODO: scale value by sample rate / block size.
+        self.meter = max(self.meter - 0.04, audio.get_max_value(block))
 
     def _handle_commands(self):
         while True:

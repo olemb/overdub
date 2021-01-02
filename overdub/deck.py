@@ -48,11 +48,13 @@ class Deck:
         self.blocks = []
 
         self._stream = audio.Stream(self._audio_callback)
-        self._stream.start()
 
         self._command_queue = queue.Queue()
 
-    def close(self):
+    def start_stream(self):
+        self._stream.start()
+
+    def stop_stream(self):
         self._stream.stop()
 
     def load(self, filename):

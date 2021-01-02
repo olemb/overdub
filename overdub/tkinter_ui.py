@@ -94,11 +94,13 @@ def ui(deck, filename, minimalist=False):
         deck.load(filename)
 
     gui = GUI(deck, filename, minimalist=minimalist)
-
+    # We start the stream here because
+    # the call to Tk() causes an ALSA underrun.
+    deck.start_stream()
     try:
         gui.mainloop()
     finally:
-        deck.close()
+        deck.stop_stream()
         if len(deck.blocks) > 0:
             print(f'\nSaving to {filename}\n')
             deck.save(filename)

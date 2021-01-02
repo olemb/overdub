@@ -118,6 +118,7 @@ def ui(deck, filename, minimalist=False):
 
     try:
         with term():
+            deck.start_stream()
             while True:
                 for event in get_events():
                     if event == 'quit':
@@ -146,6 +147,7 @@ def ui(deck, filename, minimalist=False):
     except KeyboardInterrupt:
         pass
     finally:
+        deck.stop_stream()
         if len(deck.blocks) > 0:
             update_line(f'Saving {filename}')
             deck.save(filename)

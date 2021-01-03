@@ -5,8 +5,6 @@ from .status import Status
 
 
 def play_block(blocks, pos):
-    if blocks is None:
-        return audio.silence
     if 0 <= pos < len(blocks):
         return blocks[pos]
     else:

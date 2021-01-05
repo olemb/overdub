@@ -126,8 +126,9 @@ class Deck:
             self.mode = 'playing'
 
     def _update_meter(self, block):
-        # TODO: scale value by sample rate / block size.
-        self.meter = max(self.meter - 0.04, audio.get_max_value(block))
+        to_zero_per_second = 2
+        fall = audio.block2sec(to_zero_per_second)
+        self.meter = max(self.meter - fall, audio.get_max_value(block))
 
     def _handle_commands(self):
         while True:

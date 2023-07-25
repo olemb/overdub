@@ -1,5 +1,5 @@
 import wave
-import audioop
+import array
 import sounddevice
 
 
@@ -17,6 +17,30 @@ blocks_per_second = 1 / seconds_per_block
 
 silence = b'\0' * bytes_per_block
 
+min_sample = -32768
+max_sample = 32767
+
+# Only works on little endian machines where 'h' is 16 bit.
+def add_blocks(blocka, blockb):
+    a = array.array('h')
+    a.frombytes(blocka)
+
+    b = array.array('h')
+    b.frombytes(blockb)
+
+    s = array.array('h')
+    s.frombytes(blocka)
+ 
+    for i in range(len(s)):
+        sum = a[i] + b[i]
+        if sum < min_sample:
+            sum = min_sample
+        elif sum > max_sample:
+            sum = max_sample
+        s[i] = sum
+
+    return bytes(s.tobytes())
+
 
 def sum_blocks(blocks):
     """Return a block where with the sum of the samples on all blocks.
@@ -30,7 +54,7 @@ def sum_blocks(blocks):
 
     for block in blocks:
         if block:
-            blocksum = audioop.add(blocksum, block, sample_size)
+            blocksum = add_blocks(blocksum, block)
 
     return blocksum
 
@@ -40,8 +64,15 @@ def get_max_value(block):
 
     The value is normalized to 0..1.
     """
-    max_sample = 32768
-    return audioop.max(block, sample_size) / max_sample
+    arr = array.array('h')
+    arr.frombytes(block)
+
+    max = 0
+    for sample in arr:
+        if abs(sample) > max:
+            max = abs(sample)
+
+    return sample / max_sample
 
 
 def block2sec(numblocks):

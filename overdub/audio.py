@@ -67,12 +67,7 @@ def get_max_value(block):
     arr = array.array('h')
     arr.frombytes(block)
 
-    max = 0
-    for sample in arr:
-        if abs(sample) > max:
-            max = abs(sample)
-
-    return sample / max_sample
+    return max(max(arr), abs(min(arr))) / max_sample
 
 
 def block2sec(numblocks):

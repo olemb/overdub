@@ -13,7 +13,7 @@ def get_font(size):
 
 
 class GUI:
-    def __init__(self, deck, filename, minimalist=False, fullscreen=True):
+    def __init__(self, deck, filename, minimalist=False, fullscreen=False):
         self.deck = deck
         self.filename = filename
         self.minimalist = minimalist
@@ -41,8 +41,7 @@ class GUI:
         self.window.bind('<KeyPress-space>', lambda *_: deck.toggle_play())
         self.window.bind('<KeyPress-Left>', lambda *_: deck.skip(-1))
         self.window.bind('<KeyPress-Right>', lambda *_: deck.skip(1))
-
-        self.window.bind('<KeyPress-f>', lambda *_: self.toggle_fullscreen)
+        self.window.bind('<KeyPress-f>', lambda *_: self.toggle_fullscreen())
 
         self.window.attributes("-fullscreen", self.fullscreen)
 

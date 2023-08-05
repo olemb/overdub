@@ -42,6 +42,7 @@ class GUI:
         self.window.bind('<KeyPress-Left>', lambda *_: deck.skip(-1))
         self.window.bind('<KeyPress-Right>', lambda *_: deck.skip(1))
         self.window.bind('<KeyPress-f>', lambda *_: self.toggle_fullscreen())
+        self.window.bind('<KeyPress-Escape>', lambda *_: self.quit())
 
         self.window.attributes("-fullscreen", self.fullscreen)
 
